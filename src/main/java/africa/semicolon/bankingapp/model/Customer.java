@@ -38,9 +38,12 @@ public class Customer {
     @JoinColumn(name = "bank_id", referencedColumnName = "id")
     private Bank bank;
 
+
     @OneToOne
     @JoinColumn(name = "account_id")
     private Account account;
+
+
 
 
 }
