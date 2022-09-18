@@ -1,11 +1,14 @@
 package africa.semicolon.bankingapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @NoArgsConstructor
@@ -19,12 +22,11 @@ public class Bank  {
     private Long id;
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "customers_id")
-    private Customer customers;
+    @JsonIgnore
+    @OneToMany(mappedBy = "bank")
+    private  Set<Customer> customers = new HashSet<>();
 
-    public Bank(String name, Customer customers) {
-        this.name = name;
-        this.customers = customers;
+    public Set<Customer> getCustomers() {
+        return customers;
     }
 }

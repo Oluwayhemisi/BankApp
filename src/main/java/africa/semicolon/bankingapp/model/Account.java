@@ -6,7 +6,9 @@ import org.hibernate.engine.internal.Cascade;
 import javax.persistence.*;
 import java.math.BigDecimal;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Builder
@@ -18,16 +20,18 @@ import java.util.List;
 public class Account {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO,
-            generator = "user_sequence")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String accountNumber;
     private String accountName;
     private String accountPassword;
     private BigDecimal accountBalance;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<Transaction> transactions;
+    @ManyToMany
+    @JoinTable(name = "account_transactions",
+               joinColumns = @JoinColumn(name = "account_id "),
+               inverseJoinColumns = @JoinColumn(name = "transaction_id"))
+    private Set<Transaction> transactions = new HashSet<>();
 
 
     public Account(String accountNumber, String accountName, String accountPassword, BigDecimal accountBalance) {
