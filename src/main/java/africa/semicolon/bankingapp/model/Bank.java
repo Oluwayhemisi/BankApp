@@ -5,21 +5,26 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.*;
+
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
 @Getter
-public class Bank {
+@Entity
+public class Bank  {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
-    private List<User> users;
 
-    public Bank(Long id, String name) {
-        this.id = id;
+    @ManyToOne
+    @JoinColumn(name = "customers_id")
+    private Customer customers;
+
+    public Bank(String name, Customer customers) {
         this.name = name;
-        users =  new ArrayList<>();
+        this.customers = customers;
     }
 }

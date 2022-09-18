@@ -6,15 +6,36 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.*;
+import javax.validation.constraints.Email;
+
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+public class Customer {
 
-public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO,
+            generator = "user_sequence")
     private Long id;
+
+
     private String firstName;
+
+
     private String lastName;
+
+    @Email
     private String email;
+
+
     private String phoneNumber;
+
+    @OneToOne
+    @JoinColumn(name = "account_id")
+    private Account account;
+
+
 }
