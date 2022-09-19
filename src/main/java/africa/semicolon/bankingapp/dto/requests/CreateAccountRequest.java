@@ -14,9 +14,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateAccountRequest {
-    private String firstName;
-    private String lastName;
+    private String accountName;
     private String email;
     private String accountPassword;
-    private BigDecimal initialDeposit;
+    private double initialDeposit;
 }

@@ -1,9 +1,6 @@
 package africa.semicolon.bankingapp.dto.responses;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 
@@ -12,6 +9,7 @@ import java.math.BigDecimal;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class AccountInfoResponse {
     private String accountName;
     private String accountNumber;

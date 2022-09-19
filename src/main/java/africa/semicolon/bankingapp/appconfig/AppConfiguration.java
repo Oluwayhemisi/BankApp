@@ -2,8 +2,10 @@ package africa.semicolon.bankingapp.appconfig;
 
 
 import africa.semicolon.bankingapp.repository.AccountRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.ui.Model;
 
 @Configuration
 public class AppConfiguration {
@@ -12,4 +14,9 @@ public class AppConfiguration {
 //    public AccountRepository accountRepository(){
 //        return new AccountRepositoryImpl();
 //    }
+
+    @Bean
+    public ModelMapper modelMapper(){
+        return new ModelMapper();
+    }
 }

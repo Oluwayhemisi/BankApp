@@ -4,6 +4,7 @@ import lombok.*;
 import org.hibernate.engine.internal.Cascade;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import java.math.BigDecimal;
 
 import java.util.HashSet;
@@ -25,6 +26,9 @@ public class Account {
     private String accountNumber;
     private String accountName;
     private String accountPassword;
+
+    @Email
+    private String email;
     private BigDecimal accountBalance;
 
     @ManyToMany
