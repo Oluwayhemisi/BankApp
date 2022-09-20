@@ -2,14 +2,15 @@ package africa.semicolon.bankingapp.model;
 
 import lombok.*;
 import org.hibernate.engine.internal.Cascade;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import java.math.BigDecimal;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 @Builder
@@ -18,7 +19,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Account {
+public class Account implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,6 +27,7 @@ public class Account {
     private String accountNumber;
     private String accountName;
     private String accountPassword;
+
 
     @Email
     private String email;
@@ -43,5 +45,41 @@ public class Account {
         this.accountName = accountName;
         this.accountPassword = accountPassword;
         this.accountBalance = accountBalance;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(accountName);
+        return Collections.singletonList(authority);
+    }
+
+    @Override
+    public String getPassword() {
+        return accountPassword;
+    }
+
+    @Override
+    public String getUsername() {
+        return accountName;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

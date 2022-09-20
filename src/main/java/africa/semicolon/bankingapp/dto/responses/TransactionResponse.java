@@ -1,16 +1,17 @@
 package africa.semicolon.bankingapp.dto.responses;
 
+import lombok.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.math.BigDecimal;
+
+
 
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class TransactionResponse {
-    private boolean success;
     private String message;
+    private BigDecimal accountBalance;
 }
