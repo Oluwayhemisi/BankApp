@@ -23,8 +23,9 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    private String transactionId;
     private LocalDate transactionDate;
-    private String transactionType;
+    private TransactionType transactionType;
     private String narration;
     private BigDecimal amount;
     private BigDecimal accountBalance;
