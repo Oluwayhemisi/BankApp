@@ -13,7 +13,8 @@ public class ConfirmationTokenService {
     private final ConfirmationTokenRepository confirmationTokenRepository;
 
     public void saveToken(ConfirmationToken confirmationToken) {
-    confirmationTokenRepository.save(confirmationToken);
+
+        confirmationTokenRepository.save(confirmationToken);
     }
 
     public ConfirmationToken getToken(String token) throws AccountException {

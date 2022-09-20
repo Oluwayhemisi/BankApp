@@ -60,12 +60,14 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     account.setAccountPassword(encodedPassword);
     Account savedAccount = accountRepository.save(account);
 
-    String token = UUID.randomUUID().toString();
-        ConfirmationToken confirmationToken = new ConfirmationToken(
-                token,
-                LocalDateTime.now(),
-                LocalDateTime.now().plusMinutes(15),account);
-        confirmationTokenService.saveToken(confirmationToken);
+//    String token = UUID.randomUUID().toString();
+//        ConfirmationToken confirmationToken = new ConfirmationToken(
+//                token,
+//                LocalDateTime.now(),
+//                LocalDateTime.now().plusMinutes(15),account);
+//        confirmationTokenService.saveToken(confirmationToken);
+//        AccountInfoResponse accountInfoResponse = new AccountInfoResponse();
+//        accountInfoResponse.setToken(token);
 
     return modelMapper.map(savedAccount,AccountInfoResponse.class);
 

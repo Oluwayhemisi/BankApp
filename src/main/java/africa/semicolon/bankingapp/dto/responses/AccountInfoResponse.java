@@ -14,4 +14,5 @@ public class AccountInfoResponse {
     private String accountName;
     private String accountNumber;
     private BigDecimal accountBalance;
+    private String token;
 }
