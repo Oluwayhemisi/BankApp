@@ -13,14 +13,10 @@ import africa.semicolon.bankingapp.model.Account;
 import africa.semicolon.bankingapp.model.Transaction;
 import africa.semicolon.bankingapp.model.TransactionType;
 import africa.semicolon.bankingapp.repository.AccountRepository;
-import africa.semicolon.bankingapp.security.config.token.ConfirmationToken;
-import africa.semicolon.bankingapp.security.config.token.ConfirmationTokenService;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -30,25 +26,20 @@ import java.util.*;
 
 @Service
 
-public class AccountServiceImpl implements AccountService, UserDetailsService {
+public class AccountServiceImpl implements AccountService{
 
     @Autowired
     private AccountRepository accountRepository;
     @Autowired
     private  ModelMapper modelMapper;
 
-    private ConfirmationTokenService confirmationTokenService;
-
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
 
 
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return accountRepository.findAccountByEmail(email).orElseThrow(()-> new UsernameNotFoundException("Account does not exist"));
-    }
+
+
+
 
 
     @Override
@@ -56,18 +47,10 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     validateAccount(request);
     validateAccountBalance(request);
     Account account = buildAccountFrom(request);
-    String encodedPassword = bCryptPasswordEncoder.encode(request.getAccountPassword());
-    account.setAccountPassword(encodedPassword);
+
     Account savedAccount = accountRepository.save(account);
 
-//    String token = UUID.randomUUID().toString();
-//        ConfirmationToken confirmationToken = new ConfirmationToken(
-//                token,
-//                LocalDateTime.now(),
-//                LocalDateTime.now().plusMinutes(15),account);
-//        confirmationTokenService.saveToken(confirmationToken);
-//        AccountInfoResponse accountInfoResponse = new AccountInfoResponse();
-//        accountInfoResponse.setToken(token);
+
 
     return modelMapper.map(savedAccount,AccountInfoResponse.class);
 
@@ -149,7 +132,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
 
         return Account.builder()
                 .accountName(createAccountRequest.getAccountName())
-//                .accountPassword(createAccountRequest.getAccountPassword())
+                .accountPassword(createAccountRequest.getAccountPassword())
                 .accountBalance(BigDecimal.valueOf(createAccountRequest.getInitialDeposit()))
                 .email(createAccountRequest.getEmail())
                 .accountNumber(generateAccountNumber())

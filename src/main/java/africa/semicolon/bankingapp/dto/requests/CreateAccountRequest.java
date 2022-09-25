@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @AllArgsConstructor
+@EqualsAndHashCode
 @NoArgsConstructor
 @Builder
 public class CreateAccountRequest {

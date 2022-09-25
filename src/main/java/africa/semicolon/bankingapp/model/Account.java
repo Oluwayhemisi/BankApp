@@ -19,7 +19,7 @@ import java.util.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Account implements UserDetails {
+public class Account{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -32,6 +32,7 @@ public class Account implements UserDetails {
     @Email
     private String email;
     private BigDecimal accountBalance;
+
 
     @ManyToMany
     @JoinTable(name = "account_transactions",
@@ -47,39 +48,5 @@ public class Account implements UserDetails {
         this.accountBalance = accountBalance;
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(accountName);
-        return Collections.singletonList(authority);
-    }
 
-    @Override
-    public String getPassword() {
-        return accountPassword;
-    }
-
-    @Override
-    public String getUsername() {
-        return accountName;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return false;
-    }
 }
