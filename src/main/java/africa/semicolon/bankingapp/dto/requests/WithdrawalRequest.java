@@ -15,5 +15,5 @@ import java.math.BigDecimal;
 public class WithdrawalRequest {
     private String accountNumber;
     private String accountPassword;
-    private BigDecimal withdrawalAmount;
+    private Double withdrawalAmount;
 }
