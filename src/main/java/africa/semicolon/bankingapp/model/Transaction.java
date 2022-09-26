@@ -1,11 +1,11 @@
 package africa.semicolon.bankingapp.model;
 
+import africa.semicolon.bankingapp.model.enums.TransactionType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.security.config.web.servlet.oauth2.login.OAuth2LoginSecurityMarker;
 
 import javax.persistence.*;
 import java.math.BigDecimal;

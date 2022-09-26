@@ -3,7 +3,7 @@ package africa.semicolon.bankingapp.dto.responses;
 import lombok.*;
 
 import java.math.BigDecimal;
-
+import java.time.LocalDateTime;
 
 
 @Setter
@@ -13,5 +13,10 @@ import java.math.BigDecimal;
 @Builder
 public class TransactionResponse {
     private String message;
-    private BigDecimal accountBalance;
+    private Double accountBalance;
+    private Double amount;
+    private String transactionDate;
+    private String transactionType;
+
+
 }
