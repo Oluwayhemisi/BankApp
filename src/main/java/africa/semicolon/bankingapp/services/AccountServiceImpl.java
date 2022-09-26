@@ -10,35 +10,42 @@ import africa.semicolon.bankingapp.exceptions.AccountDoesNotExistException;
 import africa.semicolon.bankingapp.exceptions.DepositAmountDoesNotExistException;
 import africa.semicolon.bankingapp.exceptions.IncorrectPasswordException;
 import africa.semicolon.bankingapp.model.Account;
+import africa.semicolon.bankingapp.model.Role;
 import africa.semicolon.bankingapp.model.Transaction;
-import africa.semicolon.bankingapp.model.TransactionType;
+import africa.semicolon.bankingapp.model.enums.TransactionType;
 import africa.semicolon.bankingapp.repository.AccountRepository;
 
+import africa.semicolon.bankingapp.security.security.jwt.TokenProvider;
+import lombok.SneakyThrows;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 
-public class AccountServiceImpl implements AccountService{
+public class AccountServiceImpl implements AccountService, UserDetailsService {
 
     @Autowired
     private AccountRepository accountRepository;
     @Autowired
     private  ModelMapper modelMapper;
-
-
-
-
-
-
-
+    @Autowired
+    private TokenProvider tokenProvider;
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
 
 
@@ -47,11 +54,13 @@ public class AccountServiceImpl implements AccountService{
     validateAccount(request);
     validateAccountBalance(request);
     Account account = buildAccountFrom(request);
-
+    account.setAccountPassword(bCryptPasswordEncoder.encode(request.getAccountPassword()));
     Account savedAccount = accountRepository.save(account);
+    String token = tokenProvider.generateTokenForVerification(String.valueOf(savedAccount.getId()));
 
 
-
+    AccountInfoResponse accountInfoResponse = new AccountInfoResponse();
+    accountInfoResponse.setToken(token);
     return modelMapper.map(savedAccount,AccountInfoResponse.class);
 
 
@@ -81,12 +90,51 @@ public class AccountServiceImpl implements AccountService{
         Account foundAccount = accountRepository.findAccountByAccountNumber(withdrawalRequest.getAccountNumber()).get();
         checkIfAccountExist(foundAccount);
         validateWithdrawal(withdrawalRequest,foundAccount);
+        BigDecimal balance = foundAccount.getAccountBalance().subtract(BigDecimal.valueOf(withdrawalRequest.getWithdrawalAmount()));
+        foundAccount.setAccountBalance(balance);
+        Transaction debitTransaction = createWithdrawalTransaction(withdrawalRequest, balance, foundAccount);
+        foundAccount.getTransactions().add(debitTransaction);
+        Account accountTransaction = accountRepository.save(foundAccount);
+
+        return modelMapper.map(accountTransaction,TransactionResponse.class);
 
 
-        return null;
 
+    }
 
+    @Override
+    public Set<TransactionResponse> getAccountStatement(String accountNumber) {
+        Account foundAccount = accountRepository.findAccountByAccountNumber(accountNumber).get();
+        checkIfAccountExist(foundAccount);
+        Set<Transaction> transactionList = foundAccount.getTransactions();
+        return transactionList.stream().map(this::buildTransactionResponse).collect(Collectors.toSet());
 
+    }
+
+    private TransactionResponse buildTransactionResponse(Transaction transaction) {
+        return TransactionResponse.builder()
+                .transactionDate(formatDateToString(transaction.getTransactionDate()))
+                .transactionType(String.valueOf(transaction.getTransactionType()))
+                .accountBalance(transaction.getAccountBalance().doubleValue())
+                .amount(transaction.getAmount().doubleValue())
+                .build();
+    }
+
+    private String formatDateToString(LocalDate localDate) {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("E, dd-MM-yyyy, hh-mm-ss, a");
+        return dateTimeFormatter.format(localDate);
+    }
+
+    private Transaction createWithdrawalTransaction( WithdrawalRequest withdrawalRequest,BigDecimal balance, Account account) {
+    Transaction transaction = new Transaction();
+    transaction.setTransactionId(generateTransactionId(account));
+    transaction.setTransactionType(TransactionType.WITHDRAWAL);
+    transaction.setTransactionDate(LocalDate.now());
+    transaction.setAmount(BigDecimal.valueOf(withdrawalRequest.getWithdrawalAmount()));
+    transaction.setAccountBalance(balance);
+    transaction.setNarration("withdrawal of "+withdrawalRequest.getAccountNumber()+" was made from your account");
+
+    return transaction;
     }
 
     private void validateWithdrawal(WithdrawalRequest withdrawalRequest, Account account) {
@@ -132,7 +180,7 @@ public class AccountServiceImpl implements AccountService{
 
         return Account.builder()
                 .accountName(createAccountRequest.getAccountName())
-                .accountPassword(createAccountRequest.getAccountPassword())
+//                .accountPassword(createAccountRequest.getAccountPassword())
                 .accountBalance(BigDecimal.valueOf(createAccountRequest.getInitialDeposit()))
                 .email(createAccountRequest.getEmail())
                 .accountNumber(generateAccountNumber())
@@ -149,4 +197,17 @@ public class AccountServiceImpl implements AccountService{
     }
 
 
+    @Override
+    @SneakyThrows
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Account account = accountRepository.findAccountByEmail(email).orElse(null);
+        if(account != null){
+            return new org.springframework.security.core.userdetails.User(account.getEmail(),account.getAccountPassword(),getAuthorities(account.getRoles()));
+        }
+        return  null;
+    }
+    private Collection<? extends GrantedAuthority> getAuthorities(Set<Role> roles){
+        return roles.stream().map(
+                role ->new SimpleGrantedAuthority(role.getRoleType().name())).collect(Collectors.toSet());
+    }
 }

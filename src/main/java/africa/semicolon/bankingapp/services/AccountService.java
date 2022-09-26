@@ -8,6 +8,7 @@ import africa.semicolon.bankingapp.dto.responses.TransactionResponse;
 import africa.semicolon.bankingapp.model.Account;
 
 import java.util.List;
+import java.util.Set;
 
 public interface AccountService {
     AccountInfoResponse createAccount(CreateAccountRequest request);
@@ -16,5 +17,6 @@ public interface AccountService {
    TransactionResponse deposit(DepositRequest depositRequest);
    TransactionResponse withdraw(WithdrawalRequest withdrawalRequest);
 
-//   public String confirmToken(String token);
+    Set<TransactionResponse> getAccountStatement(String accountNumber);
+
 }

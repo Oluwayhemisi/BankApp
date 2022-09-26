@@ -1,10 +1,8 @@
 package africa.semicolon.bankingapp.model;
 
 import lombok.*;
-import org.hibernate.engine.internal.Cascade;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+
+
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -34,9 +32,13 @@ public class Account{
     private BigDecimal accountBalance;
 
 
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Role> roles;
+
+
     @ManyToMany
     @JoinTable(name = "account_transactions",
-               joinColumns = @JoinColumn(name = "account_id "),
+               joinColumns = @JoinColumn(name = "account_identification "),
                inverseJoinColumns = @JoinColumn(name = "transaction_id"))
     private Set<Transaction> transactions = new HashSet<>();
 
@@ -47,6 +49,7 @@ public class Account{
         this.accountPassword = accountPassword;
         this.accountBalance = accountBalance;
     }
+
 
 
 }
