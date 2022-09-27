@@ -20,7 +20,7 @@ class AccountServiceImplTest {
 
     }
 
-    private AccountInfoResponse createCustomerAccount() throws AccountException {
+    private AccountInfoResponse createCustomerAccount() {
         CreateAccountRequest createAccountRequest = new CreateAccountRequest();
         createAccountRequest.setAccountName("NaylaB");
         createAccountRequest.setEmail("naylab@gmail.com");
