@@ -56,13 +56,14 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     Account account = buildAccountFrom(request);
     account.setAccountPassword(bCryptPasswordEncoder.encode(request.getAccountPassword()));
     Account savedAccount = accountRepository.save(account);
+     AccountInfoResponse acc = modelMapper.map(savedAccount,AccountInfoResponse.class);
     String token = tokenProvider.generateTokenForVerification(String.valueOf(savedAccount.getId()));
 
 
-    AccountInfoResponse accountInfoResponse = new AccountInfoResponse();
-    accountInfoResponse.setToken(token);
-    return modelMapper.map(savedAccount,AccountInfoResponse.class);
 
+
+   acc.setToken(token);
+    return acc;
 
     }
 
