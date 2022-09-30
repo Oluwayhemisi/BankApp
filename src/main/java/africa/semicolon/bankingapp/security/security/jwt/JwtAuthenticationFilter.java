@@ -24,7 +24,7 @@ import java.io.IOException;
 @Component
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-//    @Autowired
+    @Autowired
     UserDetailsService userDetailsService;
 
     @Autowired
@@ -77,4 +77,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     filterChain.doFilter(request, response);
     }
+    
 }
