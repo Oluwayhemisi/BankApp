@@ -1,5 +1,6 @@
 package africa.semicolon.bankingapp.model;
 
+import africa.semicolon.bankingapp.model.enums.RoleType;
 import lombok.*;
 
 
@@ -30,6 +31,7 @@ public class Account{
     @Email
     private String email;
     private BigDecimal accountBalance;
+    private boolean isVerified;
 
 
     @OneToMany(cascade = CascadeType.ALL)
@@ -43,12 +45,17 @@ public class Account{
     private Set<Transaction> transactions = new HashSet<>();
 
 
-    public Account(String accountNumber, String accountName, String accountPassword, BigDecimal accountBalance) {
-        this.accountNumber = accountNumber;
+    public Account( String accountName,String email, String accountPassword, BigDecimal accountBalance) {
+        this.email = email;
         this.accountName = accountName;
         this.accountPassword = accountPassword;
         this.accountBalance = accountBalance;
+        if(roles ==  null){
+            roles = new HashSet<>();
+        }
+        roles.add(new Role(RoleType.ROLE_USER));
     }
+
 
 
 
