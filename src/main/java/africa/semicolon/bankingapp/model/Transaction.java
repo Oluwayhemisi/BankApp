@@ -31,6 +31,6 @@ public class Transaction {
     private BigDecimal accountBalance;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "transactions")
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "transactions")
     private Set<Account> account = new HashSet<>();
 }
