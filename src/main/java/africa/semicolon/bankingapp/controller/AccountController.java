@@ -64,7 +64,8 @@ public class AccountController {
         Account account = accountService.findAccountByEmail(loginRequest.getEmail());
         return new ResponseEntity<>(new AuthToken(token,account.getId()),HttpStatus.OK);
     }
-    @PostMapping("deposit/")
+//    @PostMapping("deposit/")
+    @PutMapping("deposit/")
     public ResponseEntity<?> deposit(@RequestBody DepositRequest depositRequest){
         try{
             TransactionResponse transactionResponse = accountService.deposit(depositRequest);

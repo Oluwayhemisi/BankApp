@@ -5,17 +5,16 @@ import africa.semicolon.bankingapp.dto.requests.DepositRequest;
 import africa.semicolon.bankingapp.dto.requests.WithdrawalRequest;
 import africa.semicolon.bankingapp.dto.responses.AccountInfoResponse;
 import africa.semicolon.bankingapp.dto.responses.TransactionResponse;
-import africa.semicolon.bankingapp.exceptions.AccountAlreadyExistException;
-import africa.semicolon.bankingapp.exceptions.AccountDoesNotExistException;
-import africa.semicolon.bankingapp.exceptions.DepositAmountDoesNotExistException;
-import africa.semicolon.bankingapp.exceptions.IncorrectPasswordException;
+import africa.semicolon.bankingapp.exceptions.*;
 import africa.semicolon.bankingapp.model.Account;
 import africa.semicolon.bankingapp.model.Role;
 import africa.semicolon.bankingapp.model.Transaction;
+import africa.semicolon.bankingapp.model.enums.RoleType;
 import africa.semicolon.bankingapp.model.enums.TransactionType;
 import africa.semicolon.bankingapp.repository.AccountRepository;
 
 import africa.semicolon.bankingapp.security.security.jwt.TokenProvider;
+import io.jsonwebtoken.Claims;
 import lombok.SneakyThrows;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,14 +27,17 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-
 public class AccountServiceImpl implements AccountService, UserDetailsService {
 
     @Autowired
@@ -53,10 +55,14 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     public AccountInfoResponse createAccount(CreateAccountRequest request) {
     validateAccount(request);
     validateAccountBalance(request);
-    Account account = buildAccountFrom(request);
-    account.setAccountPassword(bCryptPasswordEncoder.encode(request.getAccountPassword()));
+    Account account = new Account(request.getAccountName(),request.getEmail(),bCryptPasswordEncoder.encode(request.getAccountPassword()),BigDecimal.valueOf(request.getInitialDeposit()));
+    account.setAccountNumber(generateAccountNumber());
+    account.setTransactions(new HashSet<>());
+    account.setVerified(true);
+
+
     Account savedAccount = accountRepository.save(account);
-     AccountInfoResponse acc = modelMapper.map(savedAccount,AccountInfoResponse.class);
+    AccountInfoResponse acc = modelMapper.map(savedAccount,AccountInfoResponse.class);
     String token = tokenProvider.generateTokenForVerification(String.valueOf(savedAccount.getId()));
 
 
@@ -73,6 +79,13 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     }
 
     @Override
+    public Account findAccountByEmail(String email) throws AccountException {
+        return accountRepository.findAccountByEmail(email).orElseThrow(()-> new AccountDoesNotExistException("Account with the email already exist"));
+    }
+
+    @Override
+    @Transactional
+
     public TransactionResponse deposit(DepositRequest depositRequest) {
         Account foundAccount = accountRepository.findAccountByAccountNumber(depositRequest.getAccountNumber()).get();
         checkIfAccountExist(foundAccount);
@@ -82,8 +95,12 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
         Transaction creditTransaction = createDepositTransaction(depositRequest, balance,foundAccount);
         foundAccount.getTransactions().add(creditTransaction);
         Account accountSaved = accountRepository.save(foundAccount);
-        return modelMapper.map(accountSaved, TransactionResponse.class);
-
+        TransactionResponse transactionResponse = modelMapper.map(accountSaved, TransactionResponse.class);
+        transactionResponse.setTransactionDate(LocalDateTime.now());
+        transactionResponse.setTransactionType(String.valueOf(TransactionType.DEPOSIT));
+        transactionResponse.setAmount(depositRequest.getAmount());
+        transactionResponse.setAccountBalance(balance.doubleValue());
+        return transactionResponse;
     }
 
     @Override
@@ -112,12 +129,48 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
 
     }
 
+    @Override
+
+    public void verifyUser(String token) throws AccountException {
+    Claims claims  = tokenProvider.getAllClaimsFromJWTToken(token);
+        Function<Claims, String> getSubjectFromClaim = Claims::getSubject;
+        Function<Claims, Date> getExpirationDateFromClaim = Claims::getExpiration;
+        Function<Claims, Date> getIssuedAtDateFromClaim = Claims::getIssuedAt;
+
+        String accountId = getSubjectFromClaim.apply(claims);
+        if(accountId == null){
+            throw new AccountException("Account id is not present in verification token", 404);
+        }
+        Date expiryDate = getExpirationDateFromClaim.apply(claims);
+        if(expiryDate == null){
+            throw new AccountException("Expiry date not present in verification token",404);
+        }
+        Date issuedAtDate = getIssuedAtDateFromClaim.apply(claims);
+        if(issuedAtDate == null){
+            throw new AccountException("Issue At date not present in verification",404);
+        }
+        if(expiryDate.compareTo(issuedAtDate) > 14.4){
+            throw new AccountException("Verification token has already expired",404);
+        }
+
+        Account account = findAccountByIdInternal(accountId);
+        if(account == null){
+            throw new AccountException("Account id does not exist", 404);
+        }
+        account.setVerified(true);
+        accountRepository.save(account);
+    }
+
+    private Account findAccountByIdInternal(String accountId) {
+        return accountRepository.findById(Long.valueOf(accountId)).orElse(null);
+    }
+
     private TransactionResponse buildTransactionResponse(Transaction transaction) {
         return TransactionResponse.builder()
-                .transactionDate(formatDateToString(transaction.getTransactionDate()))
-                .transactionType(String.valueOf(transaction.getTransactionType()))
-                .accountBalance(transaction.getAccountBalance().doubleValue())
-                .amount(transaction.getAmount().doubleValue())
+//                .transactionDate(formatDateToString(transaction.getTransactionDate()))
+//                .transactionType(String.valueOf(transaction.getTransactionType()))
+//                .accountBalance(transaction.getAccountBalance().doubleValue())
+//                .amount(transaction.getAmount().doubleValue())
                 .build();
     }
 
@@ -156,6 +209,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     }
 
     private String generateTransactionId(Account account) {
+
         return String.valueOf(account.getTransactions().size());
     }
 
@@ -203,7 +257,8 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Account account = accountRepository.findAccountByEmail(email).orElse(null);
         if(account != null){
-            return new org.springframework.security.core.userdetails.User(account.getEmail(),account.getAccountPassword(),getAuthorities(account.getRoles()));
+            return new org.springframework.security.core.userdetails.User(account.getEmail(),
+                    account.getAccountPassword(),getAuthorities(account.getRoles()));
         }
         return  null;
     }
