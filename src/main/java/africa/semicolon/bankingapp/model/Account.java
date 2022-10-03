@@ -21,7 +21,7 @@ import java.util.*;
 public class Account{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String accountNumber;
     private String accountName;
@@ -38,10 +38,10 @@ public class Account{
     private Set<Role> roles;
 
 
-    @ManyToMany
-    @JoinTable(name = "account_transactions",
-               joinColumns = @JoinColumn(name = "account_identification "),
-               inverseJoinColumns = @JoinColumn(name = "transaction_id"))
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JoinTable(name = "account_transactions")
+//               joinColumns = @JoinColumn(name = "account_identification "),
+//               inverseJoinColumns = @JoinColumn(name = "transaction_id"))
     private Set<Transaction> transactions = new HashSet<>();
 
 
