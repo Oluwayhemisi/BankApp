@@ -64,10 +64,11 @@ public class AccountController {
         Account account = accountService.findAccountByEmail(loginRequest.getEmail());
         return new ResponseEntity<>(new AuthToken(token,account.getId()),HttpStatus.OK);
     }
-//    @PostMapping("deposit/")
-    @PutMapping("deposit/")
+    @PostMapping("deposit/")
+//    @PutMapping("deposit/")
     public ResponseEntity<?> deposit(@RequestBody DepositRequest depositRequest){
         try{
+            System.out.println(depositRequest.getAccountNumber()+ "iam here");
             TransactionResponse transactionResponse = accountService.deposit(depositRequest);
             ApiResponse apiResponse = ApiResponse.builder()
                     .message("Transaction successful")
