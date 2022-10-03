@@ -9,16 +9,15 @@ import africa.semicolon.bankingapp.exceptions.*;
 import africa.semicolon.bankingapp.model.Account;
 import africa.semicolon.bankingapp.model.Role;
 import africa.semicolon.bankingapp.model.Transaction;
-import africa.semicolon.bankingapp.model.enums.RoleType;
 import africa.semicolon.bankingapp.model.enums.TransactionType;
 import africa.semicolon.bankingapp.repository.AccountRepository;
-
+import africa.semicolon.bankingapp.repository.TransactionRepository;
 import africa.semicolon.bankingapp.security.security.jwt.TokenProvider;
 import io.jsonwebtoken.Claims;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,6 +37,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class AccountServiceImpl implements AccountService, UserDetailsService {
 
     @Autowired
@@ -48,6 +48,9 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     private TokenProvider tokenProvider;
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
 
 
 
@@ -89,18 +92,23 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     public TransactionResponse deposit(DepositRequest depositRequest) {
         Account foundAccount = accountRepository.findAccountByAccountNumber(depositRequest.getAccountNumber()).get();
         checkIfAccountExist(foundAccount);
-        validateDeposit(depositRequest);
-        BigDecimal balance = foundAccount.getAccountBalance().add(BigDecimal.valueOf(depositRequest.getAmount()));
+        BigDecimal balance = foundAccount.getAccountBalance().add((depositRequest.getAmount()));
         foundAccount.setAccountBalance(balance);
         Transaction creditTransaction = createDepositTransaction(depositRequest, balance,foundAccount);
-        foundAccount.getTransactions().add(creditTransaction);
+        log.info("Transaction id is {}", creditTransaction.getTransactionId());
+        Transaction savedTransaction = transactionRepository.save(creditTransaction);
+        foundAccount.getTransactions().add(savedTransaction);
+
         Account accountSaved = accountRepository.save(foundAccount);
-        TransactionResponse transactionResponse = modelMapper.map(accountSaved, TransactionResponse.class);
+        TransactionResponse transactionResponse = new TransactionResponse();
+        transactionResponse.setAccountBalance(accountSaved.getAccountBalance());
+        transactionResponse.setMessage("The amount of "+depositRequest.getAmount()+ " was deposited in your account");
         transactionResponse.setTransactionDate(LocalDateTime.now());
-        transactionResponse.setTransactionType(String.valueOf(TransactionType.DEPOSIT));
+        transactionResponse.setTransactionType(TransactionType.DEPOSIT);
         transactionResponse.setAmount(depositRequest.getAmount());
-        transactionResponse.setAccountBalance(balance.doubleValue());
+        transactionResponse.setAccountBalance(balance);
         return transactionResponse;
+
     }
 
     @Override
@@ -182,7 +190,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     private Transaction createWithdrawalTransaction( WithdrawalRequest withdrawalRequest,BigDecimal balance, Account account) {
     Transaction transaction = new Transaction();
     transaction.setTransactionId(generateTransactionId(account));
-    transaction.setTransactionType(TransactionType.WITHDRAWAL);
+//    transaction.setTransactionType(TransactionType.WITHDRAWAL);
     transaction.setTransactionDate(LocalDate.now());
     transaction.setAmount(BigDecimal.valueOf(withdrawalRequest.getWithdrawalAmount()));
     transaction.setAccountBalance(balance);
@@ -202,7 +210,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     transaction.setTransactionId(generateTransactionId(foundAccount));
     transaction.setTransactionDate(LocalDate.now());
     transaction.setTransactionType(TransactionType.DEPOSIT);
-    transaction.setAmount(BigDecimal.valueOf(depositRequest.getAmount()));
+    transaction.setAmount(depositRequest.getAmount());
     transaction.setAccountBalance(balance);
     transaction.setNarration("Deposit of"+depositRequest.getAmount()+"was made into the account");
     return transaction;
@@ -210,13 +218,13 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
 
     private String generateTransactionId(Account account) {
 
-        return String.valueOf(account.getTransactions().size());
+        return String.valueOf(account.getTransactions().size() + 1);
     }
 
     private void validateDeposit(DepositRequest depositRequest) {
-        if (depositRequest.getAmount() < 100 ){
+//        if (depositRequest.getAmount() < 100 ){
             throw new DepositAmountDoesNotExistException("This is not within the amount you can deposit",404);
-        }
+//        }
     }
 
     private void validateAccountBalance(CreateAccountRequest request) {
