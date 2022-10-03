@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.math.BigDecimal;
+
 import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 class AccountServiceImplTest {
@@ -37,7 +39,7 @@ class AccountServiceImplTest {
 //    createCustomerAccount();
         DepositRequest depositRequest = new DepositRequest();
         depositRequest.setAccountNumber("0071d84a9c");
-        depositRequest.setAmount(600.00);
+        depositRequest.setAmount(new BigDecimal(1000));
         TransactionResponse transactionResponse = accountService.deposit(depositRequest);
         assertEquals(1600.00,transactionResponse.getAccountBalance());
     }
