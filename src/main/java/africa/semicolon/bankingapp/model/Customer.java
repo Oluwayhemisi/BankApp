@@ -39,7 +39,7 @@ public class Customer {
     private Bank bank;
 
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "account_id")
     private Account account;
 
