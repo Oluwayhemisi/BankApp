@@ -65,7 +65,6 @@ public class AccountController {
         return new ResponseEntity<>(new AuthToken(token,account.getId()),HttpStatus.OK);
     }
     @PostMapping("deposit/")
-//    @PutMapping("deposit/")
     public ResponseEntity<?> deposit(@RequestBody DepositRequest depositRequest){
         try{
             System.out.println(depositRequest.getAccountNumber()+ "iam here");

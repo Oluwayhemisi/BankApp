@@ -1,5 +1,4 @@
 package africa.semicolon.bankingapp.services;
-
 import africa.semicolon.bankingapp.dto.requests.CreateAccountRequest;
 import africa.semicolon.bankingapp.dto.requests.DepositRequest;
 import africa.semicolon.bankingapp.dto.requests.WithdrawalRequest;
@@ -23,15 +22,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -47,8 +43,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     @Autowired
     private TokenProvider tokenProvider;
     @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-
+    private PasswordEncoder passwordEncoder;
     @Autowired
     private TransactionRepository transactionRepository;
 
@@ -58,7 +53,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     public AccountInfoResponse createAccount(CreateAccountRequest request) {
     validateAccount(request);
     validateAccountBalance(request);
-    Account account = new Account(request.getAccountName(),request.getEmail(),bCryptPasswordEncoder.encode(request.getAccountPassword()),BigDecimal.valueOf(request.getInitialDeposit()));
+    Account account = new Account(request.getAccountName(),request.getEmail(), passwordEncoder.encode(request.getAccountPassword()),request.getInitialDeposit());
     account.setAccountNumber(generateAccountNumber());
     account.setTransactions(new HashSet<>());
     account.setVerified(true);
@@ -82,7 +77,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     }
 
     @Override
-    public Account findAccountByEmail(String email) throws AccountException {
+    public Account findAccountByEmail(String email)  {
         return accountRepository.findAccountByEmail(email).orElseThrow(()-> new AccountDoesNotExistException("Account with the email already exist"));
     }
 
@@ -115,14 +110,25 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     public TransactionResponse withdraw(WithdrawalRequest withdrawalRequest) {
         Account foundAccount = accountRepository.findAccountByAccountNumber(withdrawalRequest.getAccountNumber()).get();
         checkIfAccountExist(foundAccount);
-        validateWithdrawal(withdrawalRequest,foundAccount);
-        BigDecimal balance = foundAccount.getAccountBalance().subtract(BigDecimal.valueOf(withdrawalRequest.getWithdrawalAmount()));
+        validatePassword(withdrawalRequest,foundAccount);
+        validateAccountBalanceBeforeWithdrawal(foundAccount,withdrawalRequest);
+        BigDecimal balance = foundAccount.getAccountBalance().subtract(withdrawalRequest.getWithdrawalAmount());
         foundAccount.setAccountBalance(balance);
+
         Transaction debitTransaction = createWithdrawalTransaction(withdrawalRequest, balance, foundAccount);
+        transactionRepository.save(debitTransaction);
+
+
         foundAccount.getTransactions().add(debitTransaction);
         Account accountTransaction = accountRepository.save(foundAccount);
-
-        return modelMapper.map(accountTransaction,TransactionResponse.class);
+        TransactionResponse transactionResponse = new TransactionResponse();
+        transactionResponse.setAccountBalance(accountTransaction.getAccountBalance());
+        transactionResponse.setMessage("The amount of "+withdrawalRequest.getWithdrawalAmount()+ " was withdrawn from your account");
+        transactionResponse.setTransactionDate(LocalDateTime.now());
+        transactionResponse.setTransactionType(TransactionType.WITHDRAWAL);
+        transactionResponse.setAmount(withdrawalRequest.getWithdrawalAmount());
+        transactionResponse.setAccountBalance(balance);
+        return transactionResponse;
 
 
 
@@ -175,34 +181,34 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
 
     private TransactionResponse buildTransactionResponse(Transaction transaction) {
         return TransactionResponse.builder()
-//                .transactionDate(formatDateToString(transaction.getTransactionDate()))
-//                .transactionType(String.valueOf(transaction.getTransactionType()))
-//                .accountBalance(transaction.getAccountBalance().doubleValue())
-//                .amount(transaction.getAmount().doubleValue())
+                .transactionDate(LocalDateTime.now())
+                .transactionType(transaction.getTransactionType())
+                .accountBalance(transaction.getAccountBalance())
+                .amount(transaction.getAmount())
                 .build();
     }
 
-    private String formatDateToString(LocalDate localDate) {
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("E, dd-MM-yyyy, hh-mm-ss, a");
-        return dateTimeFormatter.format(localDate);
-    }
 
     private Transaction createWithdrawalTransaction( WithdrawalRequest withdrawalRequest,BigDecimal balance, Account account) {
     Transaction transaction = new Transaction();
     transaction.setTransactionId(generateTransactionId(account));
-//    transaction.setTransactionType(TransactionType.WITHDRAWAL);
+    transaction.setTransactionType(TransactionType.WITHDRAWAL);
     transaction.setTransactionDate(LocalDate.now());
-    transaction.setAmount(BigDecimal.valueOf(withdrawalRequest.getWithdrawalAmount()));
+    transaction.setAmount(withdrawalRequest.getWithdrawalAmount());
     transaction.setAccountBalance(balance);
     transaction.setNarration("withdrawal of "+withdrawalRequest.getAccountNumber()+" was made from your account");
 
     return transaction;
     }
 
-    private void validateWithdrawal(WithdrawalRequest withdrawalRequest, Account account) {
-        if(!account.getAccountPassword().equals(withdrawalRequest.getAccountPassword())){
+    private void validatePassword(WithdrawalRequest withdrawalRequest, Account account) {
+        log.info("Database password is {}",account.getAccountPassword());
+
+        if(!passwordEncoder.matches(withdrawalRequest.getAccountPassword(), account.getAccountPassword())){
+            log.info("Request password is {}", passwordEncoder.encode(withdrawalRequest.getAccountPassword()));
             throw new IncorrectPasswordException("Incorrect Password");
         }
+
     }
 
     private Transaction createDepositTransaction(DepositRequest depositRequest, BigDecimal balance, Account foundAccount) {
@@ -212,7 +218,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     transaction.setTransactionType(TransactionType.DEPOSIT);
     transaction.setAmount(depositRequest.getAmount());
     transaction.setAccountBalance(balance);
-    transaction.setNarration("Deposit of"+depositRequest.getAmount()+"was made into the account");
+    transaction.setNarration("Deposit of "+depositRequest.getAmount()+"was made into the account");
     return transaction;
     }
 
@@ -221,14 +227,14 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
         return String.valueOf(account.getTransactions().size() + 1);
     }
 
-    private void validateDeposit(DepositRequest depositRequest) {
-//        if (depositRequest.getAmount() < 100 ){
-            throw new DepositAmountDoesNotExistException("This is not within the amount you can deposit",404);
-//        }
+    private void validateAccountBalanceBeforeWithdrawal(Account account, WithdrawalRequest withdrawalRequest){
+        if(account.getAccountBalance().compareTo(withdrawalRequest.getWithdrawalAmount()) < 0){
+            throw new InsufficientBalanceException("Insufficient amount");
+        }
     }
 
     private void validateAccountBalance(CreateAccountRequest request) {
-        if(request.getInitialDeposit() < 1000){
+        if(request.getInitialDeposit().compareTo(new BigDecimal(1000)) < -1){
             throw new DepositAmountDoesNotExistException("Amount cannot be deposited ",404);
         }
     }
@@ -243,16 +249,19 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
 
         return Account.builder()
                 .accountName(createAccountRequest.getAccountName())
-//                .accountPassword(createAccountRequest.getAccountPassword())
-                .accountBalance(BigDecimal.valueOf(createAccountRequest.getInitialDeposit()))
+                .accountPassword(createAccountRequest.getAccountPassword())
+                .accountBalance(createAccountRequest.getInitialDeposit())
                 .email(createAccountRequest.getEmail())
                 .accountNumber(generateAccountNumber())
                 .transactions(new HashSet<>())
                 .build();
     }
     private String generateAccountNumber(){
-        return "00"+ UUID.randomUUID().toString().substring(0,8);
+       String id = String.valueOf( UUID.randomUUID().getLeastSignificantBits()).substring(1,9);
+       return "44"+id;
+
     }
+
     private void checkIfAccountExist(Account foundAccount){
         if(foundAccount == null){
             throw new AccountDoesNotExistException("Account not found");
