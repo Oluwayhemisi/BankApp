@@ -16,5 +16,5 @@ public class CreateAccountRequest {
     private String accountName;
     private String email;
     private String accountPassword;
-    private double initialDeposit;
+    private BigDecimal initialDeposit;
 }
