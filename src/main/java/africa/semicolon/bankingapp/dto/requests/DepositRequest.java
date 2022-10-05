@@ -14,5 +14,5 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class DepositRequest {
     private String accountNumber;
-    private Double amount;
+    private BigDecimal amount;
 }
