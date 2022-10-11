@@ -30,10 +30,7 @@ public class CustomerServiceImpl implements CustomerService{
 
     @Override
     public CreateCustomerResponse createCustomer(CreateCustomerRequest createCustomerRequest) {
-        Customer customer = customerRepository.findByEmail(createCustomerRequest.getEmail()).get();
-        if(customer != null){
-            throw new CustomerAlreadyExistException("Customer with the account number already exist");
-        }
+        Customer customer = customerRepository.findByEmail(createCustomerRequest.getEmail()).orElseThrow(()-> new CustomerAlreadyExistException("Customer already exist"));
         customer.setFirstName(createCustomerRequest.getFirstName());
         customer.setLastName(createCustomerRequest.getLastName());
         customer.setEmail(createCustomerRequest.getEmail());
