@@ -52,7 +52,6 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     @Override
     public AccountInfoResponse createAccount(CreateAccountRequest request) {
     validateAccount(request);
-    validateAccountBalance(request);
     Account account = new Account(request.getAccountName(),request.getEmail(), passwordEncoder.encode(request.getAccountPassword()),request.getInitialDeposit());
     account.setAccountNumber(generateAccountNumber());
     account.setTransactions(new HashSet<>());
