@@ -2,7 +2,9 @@ package africa.semicolon.bankingapp.services;
 
 import africa.semicolon.bankingapp.dto.requests.CreateAccountRequest;
 import africa.semicolon.bankingapp.dto.requests.CreateCustomerRequest;
+import africa.semicolon.bankingapp.model.Account;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
@@ -11,22 +13,24 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class CustomerServiceImplTest {
+
+    @Autowired
     private CustomerService customerService;
     private AccountService accountService;
     @Test
     void createCustomer() {
         CreateCustomerRequest createCustomerRequest = new CreateCustomerRequest();
-        createCustomerRequest.setEmail("ryan@gmail.com");
-        createCustomerRequest.setFirstName("Ryan");
-        createCustomerRequest.setLastName("Bee");
+        createCustomerRequest.setEmail("addah@gmail.com");
+        createCustomerRequest.setFirstName("Addah");
+        createCustomerRequest.setLastName("Mahre");
         createCustomerRequest.setPhoneNumber("08088809339");
-        CreateAccountRequest createAccountRequest = new CreateAccountRequest();
-        createAccountRequest.setEmail("ryan@gmail.com");
-        createAccountRequest.setAccountName("Ryan");
-        createAccountRequest.setInitialDeposit(new BigDecimal(1000));
-        createAccountRequest.setAccountPassword("0000");
-        accountService.createAccount(createAccountRequest);
-//        createCustomerRequest.setAccount();
+        Account accountRequest = new Account();
+//        accountRequest.setEmail("ryan@gmail.com");
+        accountRequest.setAccountName("Mahre");
+        accountRequest.setAccountPassword("0000");
+        createCustomerRequest.setAccount(accountRequest);
+        customerService.createCustomer(createCustomerRequest);
+        assertEquals(1,customerService.getAllCustomers().size());
 
     }
 
