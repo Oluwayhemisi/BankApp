@@ -39,7 +39,7 @@ class AccountServiceImplTest {
     public void testThatUserDeposit(){
         DepositRequest depositRequest = new DepositRequest();
         depositRequest.setAccountNumber("4485207602");
-        depositRequest.setAmount(new BigDecimal(2000.00));
+        depositRequest.setAmount(new BigDecimal("2000.00"));
         TransactionResponse transactionResponse = accountService.deposit(depositRequest);
         assertEquals((new BigDecimal("5000.00")),transactionResponse.getAccountBalance());
 
