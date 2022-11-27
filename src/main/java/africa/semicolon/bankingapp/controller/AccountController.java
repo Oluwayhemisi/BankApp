@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @RestController
 @RequestMapping("/api/v1/auth/")
@@ -100,6 +103,11 @@ public class AccountController {
                     .build();
             return new ResponseEntity<>(apiResponse,HttpStatus.valueOf(e.getMessage()));
         }
+        }
+
+        @GetMapping("accountbalance/")
+        public  ResponseEntity<?> getAccountBalance(@RequestBody AccountBalanceRequest accountBalanceRequest){
+            return new ResponseEntity<>(accountService.getAccountBalance(accountBalanceRequest), HttpStatus.OK);
         }
 
 

@@ -1,4 +1,5 @@
 package africa.semicolon.bankingapp.services;
+import africa.semicolon.bankingapp.dto.requests.AccountBalanceRequest;
 import africa.semicolon.bankingapp.dto.requests.CreateAccountRequest;
 import africa.semicolon.bankingapp.dto.requests.DepositRequest;
 import africa.semicolon.bankingapp.dto.requests.WithdrawalRequest;
@@ -174,7 +175,27 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
         accountRepository.save(account);
     }
 
+    @Override
+    public BigDecimal getAccountBalance(AccountBalanceRequest accountbalanceRequest) {
+        Account account = accountRepository.findAccountByAccountNumber(accountbalanceRequest.getAccountNumber()).orElseThrow(()-> new AccountDoesNotExistException("Account does not exist exception"));
+        validateBalancePassword( accountbalanceRequest,account);
+        return account.getAccountBalance();
+    }
+
+
+
+    private void validateBalancePassword(AccountBalanceRequest accountbalanceRequest, Account account) {
+        log.info("Database password is {}",account.getAccountPassword());
+
+        if(!passwordEncoder.matches(accountbalanceRequest.getAccountPassword(), account.getAccountPassword())){
+            log.info("Request password is {}", passwordEncoder.encode(accountbalanceRequest.getAccountPassword()));
+            throw new IncorrectPasswordException("Incorrect Password");
+        }
+
+    }
+
     private Account findAccountByIdInternal(String accountId) {
+
         return accountRepository.findById(Long.valueOf(accountId)).orElse(null);
     }
 
@@ -209,6 +230,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
         }
 
     }
+
 
     private Transaction createDepositTransaction(DepositRequest depositRequest, BigDecimal balance, Account foundAccount) {
     Transaction transaction = new Transaction();
