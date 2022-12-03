@@ -14,6 +14,6 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class WithdrawalRequest {
     private String accountNumber;
-    private String accountPassword;
+    private String accountPin;
     private BigDecimal withdrawalAmount;
 }

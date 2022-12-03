@@ -31,7 +31,6 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String transactionId;
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
@@ -43,6 +42,7 @@ public class Transaction {
     private String narration;
     private BigDecimal amount;
     private BigDecimal accountBalance;
+    private String accountNumber;
 
     @ManyToOne
     @JoinColumn(name = "account_id")

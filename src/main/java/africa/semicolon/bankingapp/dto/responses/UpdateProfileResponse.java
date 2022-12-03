@@ -1,5 +1,6 @@
-package africa.semicolon.bankingapp.dto.requests;
+package africa.semicolon.bankingapp.dto.responses;
 
+import africa.semicolon.bankingapp.dto.requests.CreateAccountRequest;
 import lombok.*;
 
 @Getter
@@ -8,8 +9,7 @@ import lombok.*;
 @EqualsAndHashCode
 @NoArgsConstructor
 @Builder
-
-public class UpdateCustomerProfile {
+public class UpdateProfileResponse {
     private String firstName;
     private String lastName;
     private String phoneNumber;
