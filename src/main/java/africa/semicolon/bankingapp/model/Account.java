@@ -1,6 +1,5 @@
 package africa.semicolon.bankingapp.model;
 
-import africa.semicolon.bankingapp.model.enums.RoleType;
 import lombok.*;
 
 
@@ -8,8 +7,6 @@ import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import java.math.BigDecimal;
-
-import java.util.*;
 
 
 @Builder
@@ -25,7 +22,7 @@ public class Account{
     private Long id;
     private String accountNumber;
     private String accountName;
-    private String accountPassword;
+    private String accountPin;
 
 
     @Email
@@ -34,26 +31,17 @@ public class Account{
     private boolean isVerified;
 
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private Set<Role> roles;
 
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JoinTable(name = "account_transactions")
-//               joinColumns = @JoinColumn(name = "account_identification "),
-//               inverseJoinColumns = @JoinColumn(name = "transaction_id"))
-    private Set<Transaction> transactions = new HashSet<>();
 
-
-    public Account( String accountName,String email, String accountPassword, BigDecimal accountBalance) {
+    public Account( String accountName,String email, String accountPin, BigDecimal accountBalance) {
         this.email = email;
         this.accountName = accountName;
-        this.accountPassword = accountPassword;
+        this.accountPin = accountPin;
         this.accountBalance = accountBalance;
-        if(roles ==  null){
-            roles = new HashSet<>();
-        }
-        roles.add(new Role(RoleType.ROLE_USER));
+
+
+
     }
 
 

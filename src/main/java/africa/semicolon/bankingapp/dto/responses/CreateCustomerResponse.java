@@ -12,4 +12,6 @@ import lombok.*;
 public class CreateCustomerResponse {
    private String message;
    private String email;
+   private String token;
+
 }

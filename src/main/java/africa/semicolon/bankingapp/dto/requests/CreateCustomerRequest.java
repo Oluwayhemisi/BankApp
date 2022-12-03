@@ -15,5 +15,6 @@ public class CreateCustomerRequest {
     private String lastName;
     private String phoneNumber;
     private String email;
-    private Account account;
+    private String password;
+    private CreateAccountRequest createAccountRequest;
 }

@@ -29,7 +29,7 @@ class AccountServiceImplTest {
         CreateAccountRequest createAccountRequest = new CreateAccountRequest();
         createAccountRequest.setAccountName("Sharon");
         createAccountRequest.setEmail("sharon@gmail.com");
-        createAccountRequest.setAccountPassword("8888");
+        createAccountRequest.setAccountPin("8888");
         createAccountRequest.setInitialDeposit(new BigDecimal(1000));
 
 
@@ -51,7 +51,7 @@ class AccountServiceImplTest {
       public void testThatUserCanWithdraw(){
         WithdrawalRequest withdrawalRequest = new WithdrawalRequest();
         withdrawalRequest.setAccountNumber("4485207602");
-        withdrawalRequest.setAccountPassword("8888");
+        withdrawalRequest.setAccountPin("8888");
         withdrawalRequest.setWithdrawalAmount(new BigDecimal(1000));
         TransactionResponse transactionResponse = accountService.withdraw(withdrawalRequest);
         assertEquals((new BigDecimal("3000.00")), transactionResponse.getAccountBalance());

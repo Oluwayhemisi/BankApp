@@ -11,28 +11,23 @@ import javax.persistence.*;
 @Setter
 @Getter
 @AllArgsConstructor
-@Entity
+//@Entity
 public class Role {
-    @Id
-    @Column
-    @SequenceGenerator(name= "role_id_sequence",
-    sequenceName = "role_id_sequence")
-    @GeneratedValue(
-            strategy = GenerationType.IDENTITY,
-            generator = "role_id_sequence"
-    )
-    private Long id;
-
-
-    @Enumerated(EnumType.STRING)
-    private RoleType roleType;
-
-    public Role(RoleType roleType) { this.roleType = roleType;
-
-    }
-
-    public Role() {
-
-    }
+//    @Id
+//    @Column
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
+//
+//
+//    @Enumerated(EnumType.STRING)
+//    private RoleType roleType;
+//
+//    public Role(RoleType roleType) { this.roleType = roleType;
+//
+//    }
+//
+//    public Role() {
+//
+//    }
 
 }

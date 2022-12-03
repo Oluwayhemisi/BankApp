@@ -1,13 +1,10 @@
 package africa.semicolon.bankingapp.services;
 
-import africa.semicolon.bankingapp.dto.requests.CreateAccountRequest;
 import africa.semicolon.bankingapp.dto.requests.CreateCustomerRequest;
 import africa.semicolon.bankingapp.model.Account;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,8 +24,8 @@ class CustomerServiceImplTest {
         Account accountRequest = new Account();
 //        accountRequest.setEmail("ryan@gmail.com");
         accountRequest.setAccountName("Mahre");
-        accountRequest.setAccountPassword("0000");
-        createCustomerRequest.setAccount(accountRequest);
+        accountRequest.setAccountPin("0000");
+//        createCustomerRequest.setAccount(accountRequest);
         customerService.createCustomer(createCustomerRequest);
         assertEquals(1,customerService.getAllCustomers().size());
 
