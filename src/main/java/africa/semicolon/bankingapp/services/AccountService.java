@@ -22,7 +22,5 @@ public interface AccountService {
    TransactionResponse deposit(DepositRequest depositRequest);
    TransactionResponse withdraw(WithdrawalRequest withdrawalRequest);
 
-    Set<TransactionResponse> getAccountStatement(String accountNumber);
-    void verifyUser(String token) throws AccountException;
     BigDecimal getAccountBalance(AccountBalanceRequest accountbalanceRequest);
 }
