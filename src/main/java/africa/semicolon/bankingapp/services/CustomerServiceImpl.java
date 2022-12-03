@@ -3,6 +3,7 @@ package africa.semicolon.bankingapp.services;
 import africa.semicolon.bankingapp.dto.requests.CreateCustomerRequest;
 import africa.semicolon.bankingapp.dto.requests.UpdateCustomerProfile;
 import africa.semicolon.bankingapp.dto.responses.CreateCustomerResponse;
+import africa.semicolon.bankingapp.dto.responses.DeleteCustomerResponse;
 import africa.semicolon.bankingapp.dto.responses.UpdateProfileResponse;
 import africa.semicolon.bankingapp.exceptions.AccountException;
 import africa.semicolon.bankingapp.exceptions.CustomerAlreadyExistException;
@@ -30,7 +31,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-
 public class CustomerServiceImpl implements CustomerService, UserDetailsService {
    private CustomerRepository customerRepository;
    private ModelMapper modelMapper;
@@ -54,7 +54,7 @@ public class CustomerServiceImpl implements CustomerService, UserDetailsService 
     public CreateCustomerResponse createCustomer(CreateCustomerRequest createCustomerRequest) {
         Optional<Customer> customer1 = customerRepository.findByEmail(createCustomerRequest.getEmail());//.orElseThrow(()-> new CustomerAlreadyExistException("Customer already exist"));
        if (customer1.isPresent()){
-           throw new CustomerAlreadyExistException("I DEY");
+           throw new CustomerAlreadyExistException("Customer Already Exist");
        }
        Customer customer = new Customer();
         customer.setFirstName(createCustomerRequest.getFirstName());
@@ -99,10 +99,10 @@ public class CustomerServiceImpl implements CustomerService, UserDetailsService 
     public UpdateProfileResponse updateCustomerProfile(String email, UpdateCustomerProfile updateCustomerProfile) {
         Customer customer = customerRepository.findByEmail(email).orElseThrow(()-> new CustomerDoesNotExistException("Customer does not exist"));
         Customer savedCustomer = modelMapper.map(updateCustomerProfile, Customer.class);
-        savedCustomer.setFirstName(customer.getFirstName());
-        savedCustomer.setLastName(customer.getLastName());
-        savedCustomer.setPhoneNumber(customer.getPhoneNumber());
-        customerRepository.save(savedCustomer);
+       customer.setFirstName(updateCustomerProfile.getFirstName());
+       customer.setLastName(updateCustomerProfile.getLastName());
+       customer.setPhoneNumber(updateCustomerProfile.getPhoneNumber());
+        customerRepository.save(customer);
 
         return modelMapper.map(savedCustomer,UpdateProfileResponse.class);
 
@@ -145,6 +145,18 @@ public class CustomerServiceImpl implements CustomerService, UserDetailsService 
         }
         customer.setVerified(true);
         customerRepository.save(customer);
+    }
+
+    @Override
+    public void deleteAllCustomer(Customer customer) {
+        customerRepository.deleteAll();
+    }
+
+    @Override
+    public DeleteCustomerResponse deleteCustomer(String email) throws CustomerException {
+        Customer customer1 = customerRepository.findByEmail(email).orElseThrow(()-> new CustomerException("Customer Already Exist", 404));
+        customerRepository.delete(customer1);
+        return modelMapper.map(customer1, DeleteCustomerResponse.class);
     }
 
     private Customer findUserByIdInternal(String userId) {

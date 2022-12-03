@@ -6,6 +6,7 @@ import africa.semicolon.bankingapp.dto.responses.AccountInfoResponse;
 import africa.semicolon.bankingapp.dto.responses.ApiResponse;
 import africa.semicolon.bankingapp.dto.responses.TransactionResponse;
 import africa.semicolon.bankingapp.services.AccountService;
+import africa.semicolon.bankingapp.services.TransactionService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,8 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 public class AccountController {
     private final AccountService accountService;
-    private final AuthenticationManager authenticationManager;
+    private final TransactionService transactionService;
+
 
 
     @PostMapping("signup/")
@@ -79,16 +81,28 @@ public class AccountController {
             return new ResponseEntity<>(apiResponse,HttpStatus.valueOf(e.getMessage()));
         }
         }
+        @PostMapping("/transfer")
+        public ResponseEntity<?> transfer(@RequestBody TransferRequest transferRequest){
+            TransactionResponse transactionResponse = accountService.transfer(transferRequest);
+            ApiResponse apiResponse = ApiResponse.builder()
+                    .message("Transaction successful")
+                    .status("success")
+                    .data(transactionResponse)
+                    .build();
+            return new ResponseEntity<>(apiResponse,HttpStatus.OK);
+
+        }
+
 
         @GetMapping("accountbalance/")
         public  ResponseEntity<?> getAccountBalance(@RequestBody AccountBalanceRequest accountBalanceRequest){
             return new ResponseEntity<>(accountService.getAccountBalance(accountBalanceRequest), HttpStatus.OK);
         }
-
-    @GetMapping("accounttransaction/")
-    public  ResponseEntity<?> getAccountTransaction(@RequestBody AccountBalanceRequest accountBalanceRequest){
-        return new ResponseEntity<>(accountService.getAccountBalance(accountBalanceRequest), HttpStatus.OK);
-    }
+//
+//    @GetMapping("accounttransaction/")
+//    public  ResponseEntity<?> getAccountTransaction(@RequestBody String accountNumber){
+//        return new ResponseEntity<>(transactionService.getAccountStatement(accountNumber), HttpStatus.OK);
+//    }
 
     }
 

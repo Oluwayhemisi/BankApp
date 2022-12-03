@@ -13,7 +13,7 @@ public interface TransactionService {
 
     Transaction createWithdrawalTransaction(WithdrawalRequest withdrawalRequest, BigDecimal balance, Account account);
 
-    Transaction createDepositTransaction(DepositRequest depositRequest, BigDecimal balance, Account foundAccount);
+     Transaction createDepositTransaction(DepositRequest depositRequest, BigDecimal balance, Account foundAccount);
 
     List<TransactionResponse> getAccountStatement(String accountNumber);
 }

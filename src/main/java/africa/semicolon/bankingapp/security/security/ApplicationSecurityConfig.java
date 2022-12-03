@@ -1,7 +1,7 @@
 package africa.semicolon.bankingapp.security.security;
 
 
-//import africa.semicolon.bankingapp.security.security.jwt.JwtAuthenticationFilter;
+import africa.semicolon.bankingapp.security.security.jwt.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -46,7 +46,7 @@ public class ApplicationSecurityConfig {
                         throw new RuntimeException(e);
                     }
                 });
-//        http.addFilterBefore(jwtAuthenticationFilterBean(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthenticationFilterBean(), UsernamePasswordAuthenticationFilter.class);
         http.addFilterAfter(exceptionHandlerFilterBean(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
             }
@@ -71,9 +71,9 @@ public class ApplicationSecurityConfig {
         }
 
 
-//    @Bean
-//    public JwtAuthenticationFilter jwtAuthenticationFilterBean(){
-//        return new JwtAuthenticationFilter();
-//    }
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilterBean(){
+        return new JwtAuthenticationFilter();
+    }
 
 }

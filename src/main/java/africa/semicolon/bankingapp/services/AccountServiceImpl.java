@@ -1,8 +1,5 @@
 package africa.semicolon.bankingapp.services;
-import africa.semicolon.bankingapp.dto.requests.AccountBalanceRequest;
-import africa.semicolon.bankingapp.dto.requests.CreateAccountRequest;
-import africa.semicolon.bankingapp.dto.requests.DepositRequest;
-import africa.semicolon.bankingapp.dto.requests.WithdrawalRequest;
+import africa.semicolon.bankingapp.dto.requests.*;
 import africa.semicolon.bankingapp.dto.responses.AccountInfoResponse;
 import africa.semicolon.bankingapp.dto.responses.TransactionResponse;
 import africa.semicolon.bankingapp.exceptions.*;
@@ -91,6 +88,7 @@ public class AccountServiceImpl implements AccountService {
         validateAccountBalanceBeforeWithdrawal(foundAccount,withdrawalRequest);
         BigDecimal balance = foundAccount.getAccountBalance().subtract(withdrawalRequest.getWithdrawalAmount());
         foundAccount.setAccountBalance(balance);
+
         Account accountTransaction = accountRepository.save(foundAccount);
         Transaction debitTransaction = transactionService.createWithdrawalTransaction(withdrawalRequest, balance, accountTransaction);
 
@@ -113,13 +111,37 @@ public class AccountServiceImpl implements AccountService {
         return account.getAccountBalance();
     }
 
+    @Override
+    public TransactionResponse transfer(TransferRequest transferRequest) {
+        WithdrawalRequest withdrawalRequest = new WithdrawalRequest();
+        withdrawalRequest.setWithdrawalAmount(transferRequest.getWithdrawalAmount());
+        withdrawalRequest.setAccountPin(transferRequest.getAccountPin());
+        withdrawalRequest.setAccountNumber(transferRequest.getAccountNumber());
+        withdraw(withdrawalRequest);
+
+        DepositRequest depositRequest = new DepositRequest();
+        depositRequest.setAccountNumber(transferRequest.getAccountToBeTransferredInto());
+        depositRequest.setAmount(transferRequest.getAmount());
+        deposit(depositRequest);
+
+        TransactionResponse transactionResponse = new TransactionResponse();
+        transactionResponse.setMessage(transferRequest.getAmount()+" has been debited from "+ transferRequest.getAccountNumber());
+        transactionResponse.setTransactionDate(LocalDateTime.now());
+        transactionResponse.setTransactionType(TransactionType.DEBIT);
+        transactionResponse.setAmount(transferRequest.getAmount());
+        transactionResponse.setAccountBalance(transferRequest.getAccountBalance());
+
+        return transactionResponse;
+
+
+    }
 
 
     private void validateBalancePassword(AccountBalanceRequest accountbalanceRequest, Account account) {
         log.info("Database password is {}",account.getAccountPin());
 
-        if(!passwordEncoder.matches(accountbalanceRequest.getAccountPassword(), account.getAccountPin())){
-            log.info("Request password is {}", passwordEncoder.encode(accountbalanceRequest.getAccountPassword()));
+        if(!passwordEncoder.matches(accountbalanceRequest.getAccountPin(), account.getAccountPin())){
+            log.info("Request password is {}", passwordEncoder.encode(accountbalanceRequest.getAccountPin()));
             throw new IncorrectPasswordException("Incorrect Password");
         }
 
@@ -143,11 +165,6 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
-//    private void validateAccountBalance(CreateAccountRequest request) {
-//        if(request.getInitialDeposit().compareTo(new BigDecimal(1000)) < -1){
-//            throw new DepositAmountDoesNotExistException("Amount cannot be deposited ",404);
-//        }
-//    }
 
 
     public static String generateAccountNumber(){

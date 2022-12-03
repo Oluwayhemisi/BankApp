@@ -1,9 +1,6 @@
 package africa.semicolon.bankingapp.services;
 
-import africa.semicolon.bankingapp.dto.requests.AccountBalanceRequest;
-import africa.semicolon.bankingapp.dto.requests.CreateAccountRequest;
-import africa.semicolon.bankingapp.dto.requests.DepositRequest;
-import africa.semicolon.bankingapp.dto.requests.WithdrawalRequest;
+import africa.semicolon.bankingapp.dto.requests.*;
 import africa.semicolon.bankingapp.dto.responses.AccountInfoResponse;
 import africa.semicolon.bankingapp.dto.responses.TransactionResponse;
 import africa.semicolon.bankingapp.exceptions.AccountException;
@@ -23,4 +20,6 @@ public interface AccountService {
    TransactionResponse withdraw(WithdrawalRequest withdrawalRequest);
 
     BigDecimal getAccountBalance(AccountBalanceRequest accountbalanceRequest);
+
+    TransactionResponse transfer(TransferRequest transferRequest);
 }

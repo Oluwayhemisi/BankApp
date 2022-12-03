@@ -47,11 +47,12 @@ public class TransactionServiceImpl implements TransactionService{
 
     @Override
     public List<TransactionResponse> getAccountStatement(String accountNumber) {
-        LocalDate to = LocalDate.now();
-        LocalDate from = LocalDate.now();
-        List<Transaction> transactionListByDate = transactionRepository.findByTransactionDate(to, from,accountNumber);
-        List<Transaction> transactionList = transactionRepository.findByAccountNumber(accountNumber);
-        return transactionList.stream().map(this::buildTransactionResponse).collect(Collectors.toList());
+//        LocalDate to = LocalDate.now();
+//        LocalDate from = LocalDate.now();
+//        List<Transaction> transactionListByDate = transactionRepository.findByTransactionDate(to, from,accountNumber);
+//        List<Transaction> transactionList = transactionRepository.findByAccountNumber(accountNumber);
+//        return transactionListByDate.stream().map(this::buildTransactionResponse).collect(Collectors.toList());
+        return null;
     }
 
     private TransactionResponse buildTransactionResponse(Transaction transaction) {

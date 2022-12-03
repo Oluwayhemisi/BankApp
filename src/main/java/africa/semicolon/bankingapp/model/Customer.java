@@ -52,7 +52,7 @@ public class Customer {
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(value = EnumType.STRING)
     private Set<RoleType> roles;
 

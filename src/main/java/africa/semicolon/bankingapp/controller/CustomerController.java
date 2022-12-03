@@ -7,6 +7,7 @@ import africa.semicolon.bankingapp.dto.requests.LoginRequest;
 import africa.semicolon.bankingapp.dto.requests.UpdateCustomerProfile;
 import africa.semicolon.bankingapp.dto.responses.ApiResponse;
 import africa.semicolon.bankingapp.dto.responses.CreateCustomerResponse;
+import africa.semicolon.bankingapp.dto.responses.DeleteCustomerResponse;
 import africa.semicolon.bankingapp.dto.responses.UpdateProfileResponse;
 import africa.semicolon.bankingapp.exceptions.AccountException;
 import africa.semicolon.bankingapp.exceptions.CustomerException;
@@ -56,9 +57,9 @@ public class CustomerController {
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-//        final String token = tokenProvider.generateJWTToken(authentication);
+        final String token = tokenProvider.generateJWTToken(authentication);
         Customer customer = customerService.findCustomerByEmail(loginRequest.getEmail());
-        return new ResponseEntity<>(customer.getId(), HttpStatus.OK);
+        return new ResponseEntity<>(new AuthToken(token,customer.getId()), HttpStatus.OK);
 
     }
 
@@ -72,18 +73,30 @@ public class CustomerController {
 
     @GetMapping(value = "/")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-    public ResponseEntity<?> getAllUsers(){
+    public ResponseEntity<?> getAllCustomers(){
         List<Customer> customers = customerService.getAllCustomers();
-        return new ResponseEntity<>(customers.get(10), HttpStatus.OK);
+        return new ResponseEntity<>(customers, HttpStatus.OK);
     }
 
     @PostMapping("/update")
-    public  ResponseEntity<?> updateProfile (@RequestBody String email, UpdateCustomerProfile updateCustomerProfile){
-        UpdateProfileResponse updateProfileResponse = customerService.updateCustomerProfile(email, updateCustomerProfile);
+    public  ResponseEntity<?> updateCustomerProfile (@RequestBody UpdateCustomerProfile updateCustomerProfile){
+
+        UpdateProfileResponse updateProfileResponse = customerService.updateCustomerProfile(updateCustomerProfile.getEmail(), updateCustomerProfile);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("Profile updated")
+                .status("success")
+                .data(updateProfileResponse)
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    @PostMapping("/delete")
+    public  ResponseEntity<?> deleteCustomer (@RequestBody String email) throws CustomerException {
+        DeleteCustomerResponse deleteCustomerResponse = customerService.deleteCustomer(email);
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("Transaction successful")
                 .status("success")
-                .data(updateProfileResponse)
+                .data(deleteCustomerResponse)
                 .build();
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
