@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RestController
@@ -52,15 +53,16 @@ public class CustomerController {
         }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginCustomer(@RequestBody LoginRequest loginRequest) throws AccountException {
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void loginCustomer(@RequestBody LoginRequest loginRequest, HttpServletResponse httpServletResponse) throws AccountException {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         final String token = tokenProvider.generateJWTToken(authentication);
         Customer customer = customerService.findCustomerByEmail(loginRequest.getEmail());
-        return new ResponseEntity<>(new AuthToken(token,customer.getId()), HttpStatus.OK);
 
+        httpServletResponse.setHeader("token", token);
+        httpServletResponse.setHeader("id", customer.getId().toString());
     }
 
     @RequestMapping("/verify/{token}")
@@ -80,8 +82,9 @@ public class CustomerController {
 
     @PostMapping("/update")
     public  ResponseEntity<?> updateCustomerProfile (@RequestBody UpdateCustomerProfile updateCustomerProfile){
-
-        UpdateProfileResponse updateProfileResponse = customerService.updateCustomerProfile(updateCustomerProfile.getEmail(), updateCustomerProfile);
+        Authentication authentication =   SecurityContextHolder.getContext().getAuthentication();
+        String loggedInUserEmail = authentication.getName();
+        UpdateProfileResponse updateProfileResponse = customerService.updateCustomerProfile(loggedInUserEmail, updateCustomerProfile);
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("Profile updated")
                 .status("success")

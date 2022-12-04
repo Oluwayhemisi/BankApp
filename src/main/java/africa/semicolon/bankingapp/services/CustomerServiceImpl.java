@@ -97,12 +97,12 @@ public class CustomerServiceImpl implements CustomerService, UserDetailsService 
 
     @Override
     public UpdateProfileResponse updateCustomerProfile(String email, UpdateCustomerProfile updateCustomerProfile) {
-        Customer customer = customerRepository.findByEmail(email).orElseThrow(()-> new CustomerDoesNotExistException("Customer does not exist"));
+        Optional<Customer> customer = customerRepository.findByEmail(email);
         Customer savedCustomer = modelMapper.map(updateCustomerProfile, Customer.class);
-       customer.setFirstName(updateCustomerProfile.getFirstName());
-       customer.setLastName(updateCustomerProfile.getLastName());
-       customer.setPhoneNumber(updateCustomerProfile.getPhoneNumber());
-        customerRepository.save(customer);
+       customer.get().setFirstName(updateCustomerProfile.getFirstName());
+       customer.get().setLastName(updateCustomerProfile.getLastName());
+       customer.get().setPhoneNumber(updateCustomerProfile.getPhoneNumber());
+        customerRepository.save(customer.get());
 
         return modelMapper.map(savedCustomer,UpdateProfileResponse.class);
 
