@@ -2,6 +2,7 @@
 An E-banking application is a digital platform that allow users to make transaction online over an internet connection.It was created using spring-boot using Maven as dependency tool and MySql as database.
 
 # Postman Documentation
+https://documenter.getpostman.com/view/21596277/2s8YzP35PM
 
 # TO RUN PROJECT
 $ mvn spring-boot:run
