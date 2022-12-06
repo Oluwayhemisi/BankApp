@@ -1,6 +1,6 @@
 package africa.semicolon.bankingapp.security.security;
 
-import africa.semicolon.bankingapp.exceptions.APIError;
+import africa.semicolon.bankingapp.controller.APIError;
 import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.filter.OncePerRequestFilter;
