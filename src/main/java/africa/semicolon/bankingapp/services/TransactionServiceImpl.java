@@ -14,7 +14,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
+
+
 
 @Service
 public class TransactionServiceImpl implements TransactionService{
@@ -24,6 +25,7 @@ public class TransactionServiceImpl implements TransactionService{
     @Override
     public Transaction createWithdrawalTransaction(WithdrawalRequest withdrawalRequest, BigDecimal balance, Account account) {
         Transaction transaction = new Transaction();
+        transaction.setAccountNumber(withdrawalRequest.getAccountNumber());
         transaction.setTransactionType(TransactionType.DEBIT);
         transaction.setTransactionDate(LocalDate.now());
         transaction.setAmount(withdrawalRequest.getWithdrawalAmount());
@@ -36,6 +38,7 @@ public class TransactionServiceImpl implements TransactionService{
     @Override
     public Transaction createDepositTransaction(DepositRequest depositRequest, BigDecimal balance, Account foundAccount) {
         Transaction transaction = new Transaction();
+        transaction.setAccountNumber(depositRequest.getAccountNumber());
         transaction.setTransactionDate(LocalDate.now());
         transaction.setTransactionType(TransactionType.CREDIT);
         transaction.setAmount(depositRequest.getAmount());
@@ -46,21 +49,13 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     @Override
-    public List<TransactionResponse> getAccountStatement(String accountNumber) {
-//        LocalDate to = LocalDate.now();
-//        LocalDate from = LocalDate.now();
-//        List<Transaction> transactionListByDate = transactionRepository.findByTransactionDate(to, from,accountNumber);
-//        List<Transaction> transactionList = transactionRepository.findByAccountNumber(accountNumber);
-//        return transactionListByDate.stream().map(this::buildTransactionResponse).collect(Collectors.toList());
-        return null;
+    public List<Transaction> getAccountStatement( StatementDTo statementDto) {
+        List<Transaction> transactionList = transactionRepository.findTransaction(statementDto.getAccountNumber(), statementDto.getFrom(), statementDto.getTo());
+
+        System.out.println(statementDto.getAccountNumber());
+        System.out.println(transactionList.size());
+        return transactionList;
+
     }
 
-    private TransactionResponse buildTransactionResponse(Transaction transaction) {
-        return TransactionResponse.builder()
-                .transactionDate(LocalDateTime.now())
-                .transactionType(transaction.getTransactionType())
-                .accountBalance(transaction.getAccountBalance())
-                .amount(transaction.getAmount())
-                .build();
-    }
 }

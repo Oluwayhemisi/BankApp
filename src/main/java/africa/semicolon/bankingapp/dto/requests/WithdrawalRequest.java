@@ -1,5 +1,6 @@
 package africa.semicolon.bankingapp.dto.requests;
 
+import africa.semicolon.bankingapp.model.Account;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,4 +17,5 @@ public class WithdrawalRequest {
     private String accountNumber;
     private String accountPin;
     private BigDecimal withdrawalAmount;
+
 }

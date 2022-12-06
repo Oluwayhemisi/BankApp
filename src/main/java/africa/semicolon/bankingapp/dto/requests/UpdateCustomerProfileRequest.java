@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 
-public class UpdateCustomerProfile {
+public class UpdateCustomerProfileRequest {
     private String firstName;
     private String lastName;
     private String phoneNumber;

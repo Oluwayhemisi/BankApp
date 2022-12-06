@@ -15,5 +15,5 @@ public interface TransactionService {
 
      Transaction createDepositTransaction(DepositRequest depositRequest, BigDecimal balance, Account foundAccount);
 
-    List<TransactionResponse> getAccountStatement(String accountNumber);
+    List<Transaction> getAccountStatement( StatementDTo statementDto);
 }

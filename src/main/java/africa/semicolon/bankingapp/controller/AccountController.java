@@ -6,6 +6,7 @@ import africa.semicolon.bankingapp.dto.responses.AccountInfoResponse;
 import africa.semicolon.bankingapp.dto.responses.ApiResponse;
 import africa.semicolon.bankingapp.dto.responses.TransactionResponse;
 import africa.semicolon.bankingapp.services.AccountService;
+import africa.semicolon.bankingapp.services.StatementDTo;
 import africa.semicolon.bankingapp.services.TransactionService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/auth/")
@@ -24,24 +26,6 @@ public class AccountController {
     private final AccountService accountService;
     private final TransactionService transactionService;
 
-
-
-    @PostMapping("signup/")
-    public ResponseEntity<?> createAccount(HttpServletRequest request, @RequestBody CreateAccountRequest createAccountRequest){
-    String host = request.getRequestURL().toString();
-    int index = host.indexOf("/",host.indexOf("/", host.indexOf("/")) +2);
-    host = host.substring(0,index+1);
-    log.info("Host -> {}",host);
-
-    AccountInfoResponse accountInfoResponse = accountService.createAccount(createAccountRequest);
-        ApiResponse apiResponse = ApiResponse.builder()
-                .status("success")
-                .message("Account created successfully")
-                .data(accountInfoResponse)
-                .build();
-        return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
-
-        }
 
 
     @PostMapping("deposit/")
@@ -99,10 +83,10 @@ public class AccountController {
             return new ResponseEntity<>(accountService.getAccountBalance(accountBalanceRequest), HttpStatus.OK);
         }
 //
-//    @GetMapping("accounttransaction/")
-//    public  ResponseEntity<?> getAccountTransaction(@RequestBody String accountNumber){
-//        return new ResponseEntity<>(transactionService.getAccountStatement(accountNumber), HttpStatus.OK);
-//    }
+    @PostMapping("accountTransaction/")
+    public  ResponseEntity<?> getAccountTransaction(@Valid @RequestBody StatementDTo statementDTo){
+        return new ResponseEntity<>(transactionService.getAccountStatement(statementDTo), HttpStatus.OK);
+    }
 
     }
 

@@ -1,10 +1,9 @@
 package africa.semicolon.bankingapp.controller;
 
 
-import africa.semicolon.bankingapp.dto.requests.AuthToken;
 import africa.semicolon.bankingapp.dto.requests.CreateCustomerRequest;
 import africa.semicolon.bankingapp.dto.requests.LoginRequest;
-import africa.semicolon.bankingapp.dto.requests.UpdateCustomerProfile;
+import africa.semicolon.bankingapp.dto.requests.UpdateCustomerProfileRequest;
 import africa.semicolon.bankingapp.dto.responses.ApiResponse;
 import africa.semicolon.bankingapp.dto.responses.CreateCustomerResponse;
 import africa.semicolon.bankingapp.dto.responses.DeleteCustomerResponse;
@@ -26,7 +25,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
@@ -81,7 +79,7 @@ public class CustomerController {
     }
 
     @PostMapping("/update")
-    public  ResponseEntity<?> updateCustomerProfile (@RequestBody UpdateCustomerProfile updateCustomerProfile){
+    public  ResponseEntity<?> updateCustomerProfile (@RequestBody UpdateCustomerProfileRequest updateCustomerProfile){
         Authentication authentication =   SecurityContextHolder.getContext().getAuthentication();
         String loggedInUserEmail = authentication.getName();
         UpdateProfileResponse updateProfileResponse = customerService.updateCustomerProfile(loggedInUserEmail, updateCustomerProfile);

@@ -44,7 +44,7 @@ public class Transaction {
     private BigDecimal accountBalance;
     private String accountNumber;
 
-    @ManyToOne
-    @JoinColumn(name = "account_id")
-    private Account account;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "account_id")
+//    private Account account;
 }

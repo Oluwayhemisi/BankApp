@@ -11,15 +11,15 @@ import java.util.List;
 import java.util.Set;
 
 public interface AccountService {
-    AccountInfoResponse createAccount(CreateAccountRequest request);
 
-   List<Account> getAllAccounts();
-
-   Account findAccountByEmail(String email) throws AccountException;
    TransactionResponse deposit(DepositRequest depositRequest);
    TransactionResponse withdraw(WithdrawalRequest withdrawalRequest);
 
     BigDecimal getAccountBalance(AccountBalanceRequest accountbalanceRequest);
 
     TransactionResponse transfer(TransferRequest transferRequest);
+
+    List<Account> getAllAccounts();
+
+    Account findAccountByEmail(String email) throws AccountException;
 }

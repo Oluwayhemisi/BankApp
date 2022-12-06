@@ -7,13 +7,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     List<Transaction> findByAccountNumber(String accountNumber);
-//    @Query ("SELECT * FROM CARS WHERE SOLD_DATE BETWEEN '2020-01-01' AND '2022-01-01'")
+@Query(nativeQuery = true, value = "select * from transaction where account_number =?1 AND transaction_date between Date(?2) AND DATE (?3) ")
 
-//@Query("SELECT a FROM Transaction where transaction_date.to <= :transaction_date.from ")
-//    List<Transaction> findByTransactionDate(LocalDate to,LocalDate from, String accountNumber);
+    List<Transaction> findTransaction(String accountNumber, LocalDate from, LocalDate to);
+
 }

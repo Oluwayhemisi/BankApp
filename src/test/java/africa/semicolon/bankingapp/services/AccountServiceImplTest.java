@@ -1,11 +1,8 @@
 package africa.semicolon.bankingapp.services;
-
-import africa.semicolon.bankingapp.dto.requests.CreateAccountRequest;
+import africa.semicolon.bankingapp.dto.requests.AccountBalanceRequest;
 import africa.semicolon.bankingapp.dto.requests.DepositRequest;
 import africa.semicolon.bankingapp.dto.requests.WithdrawalRequest;
-import africa.semicolon.bankingapp.dto.responses.AccountInfoResponse;
 import africa.semicolon.bankingapp.dto.responses.TransactionResponse;
-import africa.semicolon.bankingapp.exceptions.AccountException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,30 +16,12 @@ class AccountServiceImplTest {
     private AccountService accountService;
 
     @Test
-    public void testToCreateAnAccount() throws AccountException {
-        createCustomerAccount();
-        assertEquals(9,accountService.getAllAccounts().size());
-
-    }
-
-    private AccountInfoResponse createCustomerAccount() {
-        CreateAccountRequest createAccountRequest = new CreateAccountRequest();
-        createAccountRequest.setAccountName("Sharon");
-        createAccountRequest.setEmail("sharon@gmail.com");
-        createAccountRequest.setAccountPin("8888");
-        createAccountRequest.setInitialDeposit(new BigDecimal(1000));
-
-
-        return accountService.createAccount(createAccountRequest);
-    }
-    @Test
     public void testThatUserDeposit(){
         DepositRequest depositRequest = new DepositRequest();
-        depositRequest.setAccountNumber("4485207602");
+        depositRequest.setAccountNumber("4450680478");
         depositRequest.setAmount(new BigDecimal("2000.00"));
         TransactionResponse transactionResponse = accountService.deposit(depositRequest);
-        assertEquals((new BigDecimal("5000.00")),transactionResponse.getAccountBalance());
-
+        assertEquals((new BigDecimal("3000.00")),transactionResponse.getAccountBalance());
 
     }
 
@@ -50,11 +29,36 @@ class AccountServiceImplTest {
     @Test
       public void testThatUserCanWithdraw(){
         WithdrawalRequest withdrawalRequest = new WithdrawalRequest();
-        withdrawalRequest.setAccountNumber("4485207602");
-        withdrawalRequest.setAccountPin("8888");
+        withdrawalRequest.setAccountNumber("4450680478");
+        withdrawalRequest.setAccountPin("4444");
         withdrawalRequest.setWithdrawalAmount(new BigDecimal(1000));
         TransactionResponse transactionResponse = accountService.withdraw(withdrawalRequest);
-        assertEquals((new BigDecimal("3000.00")), transactionResponse.getAccountBalance());
+        assertEquals((new BigDecimal("2000.00")), transactionResponse.getAccountBalance());
+
+    }
+    @Test
+    public void testThatUserCanTransfer(){
+        WithdrawalRequest withdrawalRequest = new WithdrawalRequest();
+        withdrawalRequest.setAccountNumber("4467804475");
+        withdrawalRequest.setWithdrawalAmount(new BigDecimal(1000));
+        withdrawalRequest.setAccountPin("2222");
+        TransactionResponse transactionResponse = accountService.withdraw(withdrawalRequest);
+        assertEquals(new BigDecimal("3000.00"),transactionResponse.getAccountBalance());
+
+        DepositRequest depositRequest = new DepositRequest();
+        depositRequest.setAccountNumber("4452720356");
+        depositRequest.setAmount(new BigDecimal(1000));
+        TransactionResponse transactionResponse1 = accountService.deposit(depositRequest);
+        assertEquals(new BigDecimal("3000.00"), transactionResponse1.getAccountBalance());
+    }
+
+    @Test
+    public void testThatUserCanGetAccountBalance(){
+        AccountBalanceRequest accountBalanceRequest = new AccountBalanceRequest();
+        accountBalanceRequest.setAccountNumber("4467804475");
+        accountBalanceRequest.setAccountPin("2222");
+        BigDecimal accountBalance = accountService.getAccountBalance(accountBalanceRequest);
+        assertEquals(new BigDecimal("3000.00"),accountBalance);
 
     }
 

@@ -1,13 +1,12 @@
 package africa.semicolon.bankingapp.services;
 
 import africa.semicolon.bankingapp.dto.requests.CreateCustomerRequest;
-import africa.semicolon.bankingapp.dto.requests.UpdateCustomerProfile;
+import africa.semicolon.bankingapp.dto.requests.UpdateCustomerProfileRequest;
 import africa.semicolon.bankingapp.dto.responses.CreateCustomerResponse;
 import africa.semicolon.bankingapp.dto.responses.DeleteCustomerResponse;
 import africa.semicolon.bankingapp.dto.responses.UpdateProfileResponse;
 import africa.semicolon.bankingapp.exceptions.AccountException;
 import africa.semicolon.bankingapp.exceptions.CustomerAlreadyExistException;
-import africa.semicolon.bankingapp.exceptions.CustomerDoesNotExistException;
 import africa.semicolon.bankingapp.exceptions.CustomerException;
 import africa.semicolon.bankingapp.model.Account;
 import africa.semicolon.bankingapp.model.Customer;
@@ -96,7 +95,7 @@ public class CustomerServiceImpl implements CustomerService, UserDetailsService 
     }
 
     @Override
-    public UpdateProfileResponse updateCustomerProfile(String email, UpdateCustomerProfile updateCustomerProfile) {
+    public UpdateProfileResponse updateCustomerProfile(String email, UpdateCustomerProfileRequest updateCustomerProfile) {
         Optional<Customer> customer = customerRepository.findByEmail(email);
         Customer savedCustomer = modelMapper.map(updateCustomerProfile, Customer.class);
        customer.get().setFirstName(updateCustomerProfile.getFirstName());

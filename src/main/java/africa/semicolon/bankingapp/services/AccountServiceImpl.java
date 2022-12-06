@@ -35,29 +35,6 @@ public class AccountServiceImpl implements AccountService {
     TransactionService transactionService;
 
 
-
-    @Override
-    public AccountInfoResponse createAccount(CreateAccountRequest request) {
-    Account account = new Account(request.getAccountName(),request.getEmail(), passwordEncoder.encode(request.getAccountPin()),request.getInitialDeposit());
-    account.setAccountNumber(generateAccountNumber());
-    account.setVerified(true);
-
-    Account savedAccount = accountRepository.save(account);
-    AccountInfoResponse acc = modelMapper.map(savedAccount,AccountInfoResponse.class);
-    return acc;
-
-    }
-
-    @Override
-    public List<Account> getAllAccounts() {
-        return accountRepository.findAll();
-    }
-
-    @Override
-    public Account findAccountByEmail(String email)  {
-        return accountRepository.findAccountByEmail(email).orElseThrow(()-> new AccountDoesNotExistException("Account with the email already exist"));
-    }
-
     @Override
     @Transactional
 
@@ -111,6 +88,7 @@ public class AccountServiceImpl implements AccountService {
         return account.getAccountBalance();
     }
 
+
     @Override
     public TransactionResponse transfer(TransferRequest transferRequest) {
         WithdrawalRequest withdrawalRequest = new WithdrawalRequest();
@@ -118,6 +96,7 @@ public class AccountServiceImpl implements AccountService {
         withdrawalRequest.setAccountPin(transferRequest.getAccountPin());
         withdrawalRequest.setAccountNumber(transferRequest.getAccountNumber());
         withdraw(withdrawalRequest);
+
 
         DepositRequest depositRequest = new DepositRequest();
         depositRequest.setAccountNumber(transferRequest.getAccountToBeTransferredInto());
@@ -129,11 +108,20 @@ public class AccountServiceImpl implements AccountService {
         transactionResponse.setTransactionDate(LocalDateTime.now());
         transactionResponse.setTransactionType(TransactionType.DEBIT);
         transactionResponse.setAmount(transferRequest.getAmount());
-        transactionResponse.setAccountBalance(transferRequest.getAccountBalance());
-
+        transactionResponse.getAccountBalance();
         return transactionResponse;
 
 
+    }
+
+    @Override
+    public List<Account> getAllAccounts() {
+        return accountRepository.findAll();
+    }
+
+    @Override
+    public Account findAccountByEmail(String email)  {
+        return accountRepository.findAccountByEmail(email).orElseThrow(()-> new AccountDoesNotExistException("Account with the email already exist"));
     }
 
 
