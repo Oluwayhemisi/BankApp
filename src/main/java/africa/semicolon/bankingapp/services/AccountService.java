@@ -12,12 +12,12 @@ import java.util.Set;
 
 public interface AccountService {
 
-   TransactionResponse deposit(DepositRequest depositRequest);
-   TransactionResponse withdraw(WithdrawalRequest withdrawalRequest);
+   TransactionResponse deposit(DepositRequest depositRequest) throws AccountException;
+   TransactionResponse withdraw(WithdrawalRequest withdrawalRequest) throws AccountException;
 
-    BigDecimal getAccountBalance(AccountBalanceRequest accountbalanceRequest);
+    BigDecimal getAccountBalance(AccountBalanceRequest accountbalanceRequest) throws AccountException;
 
-    TransactionResponse transfer(TransferRequest transferRequest);
+    TransactionResponse transfer(TransferRequest transferRequest) throws AccountException;
 
     List<Account> getAllAccounts();
 

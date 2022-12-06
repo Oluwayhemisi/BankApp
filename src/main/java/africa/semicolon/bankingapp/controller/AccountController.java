@@ -30,8 +30,7 @@ public class AccountController {
 
     @PostMapping("deposit/")
     public ResponseEntity<?> deposit(@RequestBody DepositRequest depositRequest){
-        try{
-            System.out.println(depositRequest.getAccountNumber()+ "iam here");
+
             TransactionResponse transactionResponse = accountService.deposit(depositRequest);
             ApiResponse apiResponse = ApiResponse.builder()
                     .message("Transaction successful")
@@ -40,16 +39,9 @@ public class AccountController {
                     .build();
             return new ResponseEntity<>(apiResponse,HttpStatus.OK);
 
-        }catch (Exception e){
-            ApiResponse apiResponse = ApiResponse.builder()
-                    .status("failed")
-                    .build();
-            return new ResponseEntity<>(apiResponse,HttpStatus.valueOf(e.getMessage()));
-        }
     }
     @PostMapping("withdraw/")
     public ResponseEntity<?> withdraw(@RequestBody WithdrawalRequest withdrawalRequest){
-        try{
             TransactionResponse transactionResponse = accountService.withdraw(withdrawalRequest);
             ApiResponse apiResponse = ApiResponse.builder()
                     .message("Transaction successful")
@@ -58,12 +50,6 @@ public class AccountController {
                     .build();
             return new ResponseEntity<>(apiResponse,HttpStatus.OK);
 
-        }catch (Exception e){
-            ApiResponse apiResponse = ApiResponse.builder()
-                    .status("failed")
-                    .build();
-            return new ResponseEntity<>(apiResponse,HttpStatus.valueOf(e.getMessage()));
-        }
         }
         @PostMapping("/transfer")
         public ResponseEntity<?> transfer(@RequestBody TransferRequest transferRequest){
@@ -82,7 +68,7 @@ public class AccountController {
         public  ResponseEntity<?> getAccountBalance(@RequestBody AccountBalanceRequest accountBalanceRequest){
             return new ResponseEntity<>(accountService.getAccountBalance(accountBalanceRequest), HttpStatus.OK);
         }
-//
+
     @PostMapping("accountTransaction/")
     public  ResponseEntity<?> getAccountTransaction(@Valid @RequestBody StatementDTo statementDTo){
         return new ResponseEntity<>(transactionService.getAccountStatement(statementDTo), HttpStatus.OK);

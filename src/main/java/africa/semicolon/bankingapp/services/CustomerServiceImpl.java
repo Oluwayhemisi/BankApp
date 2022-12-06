@@ -6,7 +6,6 @@ import africa.semicolon.bankingapp.dto.responses.CreateCustomerResponse;
 import africa.semicolon.bankingapp.dto.responses.DeleteCustomerResponse;
 import africa.semicolon.bankingapp.dto.responses.UpdateProfileResponse;
 import africa.semicolon.bankingapp.exceptions.AccountException;
-import africa.semicolon.bankingapp.exceptions.CustomerAlreadyExistException;
 import africa.semicolon.bankingapp.exceptions.CustomerException;
 import africa.semicolon.bankingapp.model.Account;
 import africa.semicolon.bankingapp.model.Customer;
@@ -50,10 +49,10 @@ public class CustomerServiceImpl implements CustomerService, UserDetailsService 
     }
 
     @Override
-    public CreateCustomerResponse createCustomer(CreateCustomerRequest createCustomerRequest) {
+    public CreateCustomerResponse createCustomer(CreateCustomerRequest createCustomerRequest) throws CustomerException {
         Optional<Customer> customer1 = customerRepository.findByEmail(createCustomerRequest.getEmail());//.orElseThrow(()-> new CustomerAlreadyExistException("Customer already exist"));
        if (customer1.isPresent()){
-           throw new CustomerAlreadyExistException("Customer Already Exist");
+           throw new CustomerException("Customer Already Exist",404);
        }
        Customer customer = new Customer();
         customer.setFirstName(createCustomerRequest.getFirstName());

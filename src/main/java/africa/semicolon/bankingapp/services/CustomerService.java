@@ -13,7 +13,7 @@ import java.util.List;
 
 
 public interface CustomerService {
-    CreateCustomerResponse createCustomer(CreateCustomerRequest createCustomerRequest);
+    CreateCustomerResponse createCustomer(CreateCustomerRequest createCustomerRequest) throws CustomerException;
 
     List<Customer> getAllCustomers();
     UpdateProfileResponse updateCustomerProfile(String email, UpdateCustomerProfileRequest updateCustomerProfile);

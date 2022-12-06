@@ -25,8 +25,6 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private AccountRepository accountRepository;
 
-    @Autowired
-    private  ModelMapper modelMapper;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -38,7 +36,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
 
-    public TransactionResponse deposit(DepositRequest depositRequest) {
+    public TransactionResponse deposit(DepositRequest depositRequest) throws AccountException {
         Account foundAccount = accountRepository.findAccountByAccountNumber(depositRequest.getAccountNumber()).get();
         checkIfAccountExist(foundAccount);
         BigDecimal balance = foundAccount.getAccountBalance().add((depositRequest.getAmount()));
@@ -58,7 +56,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public TransactionResponse withdraw(WithdrawalRequest withdrawalRequest) {
+    public TransactionResponse withdraw(WithdrawalRequest withdrawalRequest) throws AccountException {
         Account foundAccount = accountRepository.findAccountByAccountNumber(withdrawalRequest.getAccountNumber()).get();
         checkIfAccountExist(foundAccount);
         validatePin(withdrawalRequest,foundAccount);
@@ -82,15 +80,15 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public BigDecimal getAccountBalance(AccountBalanceRequest accountbalanceRequest) {
-        Account account = accountRepository.findAccountByAccountNumber(accountbalanceRequest.getAccountNumber()).orElseThrow(()-> new AccountDoesNotExistException("Account does not exist exception"));
+    public BigDecimal getAccountBalance(AccountBalanceRequest accountbalanceRequest) throws AccountException {
+        Account account = accountRepository.findAccountByAccountNumber(accountbalanceRequest.getAccountNumber()).orElseThrow(()-> new AccountException("Account does not exist exception",404));
         validateBalancePassword( accountbalanceRequest,account);
         return account.getAccountBalance();
     }
 
 
     @Override
-    public TransactionResponse transfer(TransferRequest transferRequest) {
+    public TransactionResponse transfer(TransferRequest transferRequest) throws AccountException {
         WithdrawalRequest withdrawalRequest = new WithdrawalRequest();
         withdrawalRequest.setWithdrawalAmount(transferRequest.getWithdrawalAmount());
         withdrawalRequest.setAccountPin(transferRequest.getAccountPin());
@@ -104,7 +102,7 @@ public class AccountServiceImpl implements AccountService {
         deposit(depositRequest);
 
         TransactionResponse transactionResponse = new TransactionResponse();
-        transactionResponse.setMessage(transferRequest.getAmount()+" has been debited from "+ transferRequest.getAccountNumber());
+        transactionResponse.setMessage(transferRequest.getAmount()+" was been debited from "+ transferRequest.getAccountNumber());
         transactionResponse.setTransactionDate(LocalDateTime.now());
         transactionResponse.setTransactionType(TransactionType.DEBIT);
         transactionResponse.setAmount(transferRequest.getAmount());
@@ -120,36 +118,36 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account findAccountByEmail(String email)  {
-        return accountRepository.findAccountByEmail(email).orElseThrow(()-> new AccountDoesNotExistException("Account with the email already exist"));
+    public Account findAccountByEmail(String email) throws AccountException {
+        return accountRepository.findAccountByEmail(email).orElseThrow(()-> new AccountException("Account with the email already exist",404));
     }
 
 
-    private void validateBalancePassword(AccountBalanceRequest accountbalanceRequest, Account account) {
+    private void validateBalancePassword(AccountBalanceRequest accountbalanceRequest, Account account) throws AccountException {
         log.info("Database password is {}",account.getAccountPin());
 
         if(!passwordEncoder.matches(accountbalanceRequest.getAccountPin(), account.getAccountPin())){
             log.info("Request password is {}", passwordEncoder.encode(accountbalanceRequest.getAccountPin()));
-            throw new IncorrectPasswordException("Incorrect Password");
+            throw new AccountException("Incorrect Password",404);
         }
 
     }
 
 
-    private void validatePin(WithdrawalRequest withdrawalRequest, Account account) {
+    private void validatePin(WithdrawalRequest withdrawalRequest, Account account) throws AccountException {
         log.info("Database password is {}",account.getAccountPin());
 
         if(!passwordEncoder.matches(withdrawalRequest.getAccountPin(), account.getAccountPin())){
             log.info("Request password is {}", passwordEncoder.encode(withdrawalRequest.getAccountPin()));
-            throw new IncorrectPasswordException("Incorrect Password");
+            throw new AccountException("Incorrect Password",404);
         }
 
     }
 
 
-    private void validateAccountBalanceBeforeWithdrawal(Account account, WithdrawalRequest withdrawalRequest){
+    private void validateAccountBalanceBeforeWithdrawal(Account account, WithdrawalRequest withdrawalRequest) throws AccountException {
         if(account.getAccountBalance().compareTo(withdrawalRequest.getWithdrawalAmount()) < 0){
-            throw new InsufficientBalanceException("Insufficient amount");
+            throw new AccountException("Insufficient amount",404);
         }
     }
 
@@ -160,9 +158,9 @@ public class AccountServiceImpl implements AccountService {
        return "44"+id;
     }
 
-    private void checkIfAccountExist(Account foundAccount){
+    private void checkIfAccountExist(Account foundAccount) throws AccountException {
         if(foundAccount == null){
-            throw new AccountDoesNotExistException("Account not found");
+            throw new AccountException("Account not found",404);
         }
     }
 
