@@ -4,6 +4,7 @@ import africa.semicolon.bankingapp.dto.requests.CreateAccountRequest;
 import africa.semicolon.bankingapp.dto.requests.CreateCustomerRequest;
 import africa.semicolon.bankingapp.dto.requests.UpdateCustomerProfileRequest;
 import africa.semicolon.bankingapp.dto.responses.CreateCustomerResponse;
+import africa.semicolon.bankingapp.exceptions.CustomerException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,12 +20,12 @@ class CustomerServiceImplTest {
     private CustomerService customerService;
 
     @Test
-    void testToCreateCustomerAccount() {
+    void testToCreateCustomerAccount() throws CustomerException {
         createCustomer();
         assertEquals(1,customerService.getAllCustomers().size());
 
     }
-    private CreateCustomerResponse createCustomer(){
+    private CreateCustomerResponse createCustomer() throws CustomerException {
         CreateCustomerRequest createCustomerRequest = new CreateCustomerRequest();
         createCustomerRequest.setEmail("addah@gmail.com");
         createCustomerRequest.setFirstName("Addah");

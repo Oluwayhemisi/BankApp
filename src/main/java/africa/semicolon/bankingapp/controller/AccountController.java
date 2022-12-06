@@ -5,6 +5,7 @@ import africa.semicolon.bankingapp.dto.requests.*;
 import africa.semicolon.bankingapp.dto.responses.AccountInfoResponse;
 import africa.semicolon.bankingapp.dto.responses.ApiResponse;
 import africa.semicolon.bankingapp.dto.responses.TransactionResponse;
+import africa.semicolon.bankingapp.exceptions.AccountException;
 import africa.semicolon.bankingapp.services.AccountService;
 import africa.semicolon.bankingapp.services.StatementDTo;
 import africa.semicolon.bankingapp.services.TransactionService;
@@ -29,7 +30,7 @@ public class AccountController {
 
 
     @PostMapping("deposit/")
-    public ResponseEntity<?> deposit(@RequestBody DepositRequest depositRequest){
+    public ResponseEntity<?> deposit(@RequestBody DepositRequest depositRequest) throws AccountException {
 
             TransactionResponse transactionResponse = accountService.deposit(depositRequest);
             ApiResponse apiResponse = ApiResponse.builder()
@@ -41,7 +42,7 @@ public class AccountController {
 
     }
     @PostMapping("withdraw/")
-    public ResponseEntity<?> withdraw(@RequestBody WithdrawalRequest withdrawalRequest){
+    public ResponseEntity<?> withdraw(@RequestBody WithdrawalRequest withdrawalRequest) throws AccountException {
             TransactionResponse transactionResponse = accountService.withdraw(withdrawalRequest);
             ApiResponse apiResponse = ApiResponse.builder()
                     .message("Transaction successful")
@@ -52,7 +53,7 @@ public class AccountController {
 
         }
         @PostMapping("/transfer")
-        public ResponseEntity<?> transfer(@RequestBody TransferRequest transferRequest){
+        public ResponseEntity<?> transfer(@RequestBody TransferRequest transferRequest) throws AccountException {
             TransactionResponse transactionResponse = accountService.transfer(transferRequest);
             ApiResponse apiResponse = ApiResponse.builder()
                     .message("Transaction successful")
@@ -65,7 +66,7 @@ public class AccountController {
 
 
         @GetMapping("accountbalance/")
-        public  ResponseEntity<?> getAccountBalance(@RequestBody AccountBalanceRequest accountBalanceRequest){
+        public  ResponseEntity<?> getAccountBalance(@RequestBody AccountBalanceRequest accountBalanceRequest) throws AccountException {
             return new ResponseEntity<>(accountService.getAccountBalance(accountBalanceRequest), HttpStatus.OK);
         }
 

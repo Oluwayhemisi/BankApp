@@ -3,6 +3,7 @@ import africa.semicolon.bankingapp.dto.requests.AccountBalanceRequest;
 import africa.semicolon.bankingapp.dto.requests.DepositRequest;
 import africa.semicolon.bankingapp.dto.requests.WithdrawalRequest;
 import africa.semicolon.bankingapp.dto.responses.TransactionResponse;
+import africa.semicolon.bankingapp.exceptions.AccountException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,7 +17,7 @@ class AccountServiceImplTest {
     private AccountService accountService;
 
     @Test
-    public void testThatUserDeposit(){
+    public void testThatUserDeposit() throws AccountException {
         DepositRequest depositRequest = new DepositRequest();
         depositRequest.setAccountNumber("4450680478");
         depositRequest.setAmount(new BigDecimal("2000.00"));
@@ -27,7 +28,7 @@ class AccountServiceImplTest {
 
 
     @Test
-      public void testThatUserCanWithdraw(){
+      public void testThatUserCanWithdraw() throws AccountException {
         WithdrawalRequest withdrawalRequest = new WithdrawalRequest();
         withdrawalRequest.setAccountNumber("4450680478");
         withdrawalRequest.setAccountPin("4444");
@@ -37,7 +38,7 @@ class AccountServiceImplTest {
 
     }
     @Test
-    public void testThatUserCanTransfer(){
+    public void testThatUserCanTransfer() throws AccountException {
         WithdrawalRequest withdrawalRequest = new WithdrawalRequest();
         withdrawalRequest.setAccountNumber("4467804475");
         withdrawalRequest.setWithdrawalAmount(new BigDecimal(1000));
@@ -53,7 +54,7 @@ class AccountServiceImplTest {
     }
 
     @Test
-    public void testThatUserCanGetAccountBalance(){
+    public void testThatUserCanGetAccountBalance() throws AccountException {
         AccountBalanceRequest accountBalanceRequest = new AccountBalanceRequest();
         accountBalanceRequest.setAccountNumber("4467804475");
         accountBalanceRequest.setAccountPin("2222");

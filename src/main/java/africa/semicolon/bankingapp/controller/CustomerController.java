@@ -40,7 +40,7 @@ public class CustomerController {
 
 
     @PostMapping("create/")
-    public ResponseEntity<?> createCustomer( @RequestBody CreateCustomerRequest createCustomerRequest){
+    public ResponseEntity<?> createCustomer( @RequestBody CreateCustomerRequest createCustomerRequest) throws CustomerException {
         CreateCustomerResponse createCustomerResponse = customerService.createCustomer(createCustomerRequest);
             ApiResponse apiResponse = ApiResponse.builder()
                     .message("Transaction successful")
