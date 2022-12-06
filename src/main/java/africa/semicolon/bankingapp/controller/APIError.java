@@ -1,4 +1,4 @@
-package africa.semicolon.bankingapp.exceptions;
+package africa.semicolon.bankingapp.controller;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonProcessingException;
