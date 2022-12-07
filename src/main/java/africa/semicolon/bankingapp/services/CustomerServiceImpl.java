@@ -50,7 +50,7 @@ public class CustomerServiceImpl implements CustomerService, UserDetailsService 
 
     @Override
     public CreateCustomerResponse createCustomer(CreateCustomerRequest createCustomerRequest) throws CustomerException {
-        Optional<Customer> customer1 = customerRepository.findByEmail(createCustomerRequest.getEmail());//.orElseThrow(()-> new CustomerAlreadyExistException("Customer already exist"));
+        Optional<Customer> customer1 = customerRepository.findByEmail(createCustomerRequest.getEmail());
        if (customer1.isPresent()){
            throw new CustomerException("Customer Already Exist",404);
        }

@@ -1,6 +1,5 @@
 package africa.semicolon.bankingapp.services;
 import africa.semicolon.bankingapp.dto.requests.*;
-import africa.semicolon.bankingapp.dto.responses.AccountInfoResponse;
 import africa.semicolon.bankingapp.dto.responses.TransactionResponse;
 import africa.semicolon.bankingapp.exceptions.*;
 import africa.semicolon.bankingapp.model.Account;
@@ -10,8 +9,6 @@ import africa.semicolon.bankingapp.repository.AccountRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
@@ -28,7 +25,7 @@ public class AccountServiceImpl implements AccountService {
 
     private final PasswordEncoder passwordEncoder;
 
- private final    TransactionService transactionService;
+    private final  TransactionService transactionService;
 
 
     @Override
