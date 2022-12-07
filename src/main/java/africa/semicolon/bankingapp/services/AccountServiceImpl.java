@@ -8,6 +8,7 @@ import africa.semicolon.bankingapp.model.Transaction;
 import africa.semicolon.bankingapp.model.enums.TransactionType;
 import africa.semicolon.bankingapp.repository.AccountRepository;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,22 +21,18 @@ import java.util.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
 
-    @Autowired
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
 
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    TransactionService transactionService;
+ private final    TransactionService transactionService;
 
 
     @Override
     @Transactional
-
     public TransactionResponse deposit(DepositRequest depositRequest) throws AccountException {
         Account foundAccount = accountRepository.findAccountByAccountNumber(depositRequest.getAccountNumber()).get();
         checkIfAccountExist(foundAccount);
@@ -93,23 +90,20 @@ public class AccountServiceImpl implements AccountService {
         withdrawalRequest.setWithdrawalAmount(transferRequest.getWithdrawalAmount());
         withdrawalRequest.setAccountPin(transferRequest.getAccountPin());
         withdrawalRequest.setAccountNumber(transferRequest.getAccountNumber());
-        withdraw(withdrawalRequest);
-
+        TransactionResponse transactionResponseFirst =    withdraw(withdrawalRequest);
 
         DepositRequest depositRequest = new DepositRequest();
         depositRequest.setAccountNumber(transferRequest.getAccountToBeTransferredInto());
         depositRequest.setAmount(transferRequest.getAmount());
-        deposit(depositRequest);
+      deposit(depositRequest);
 
         TransactionResponse transactionResponse = new TransactionResponse();
         transactionResponse.setMessage(transferRequest.getAmount()+" was been debited from "+ transferRequest.getAccountNumber());
         transactionResponse.setTransactionDate(LocalDateTime.now());
         transactionResponse.setTransactionType(TransactionType.DEBIT);
         transactionResponse.setAmount(transferRequest.getAmount());
-        transactionResponse.getAccountBalance();
+        transactionResponse.setAccountBalance(transactionResponseFirst.getAccountBalance());
         return transactionResponse;
-
-
     }
 
     @Override
@@ -130,7 +124,6 @@ public class AccountServiceImpl implements AccountService {
             log.info("Request password is {}", passwordEncoder.encode(accountbalanceRequest.getAccountPin()));
             throw new AccountException("Incorrect Password",404);
         }
-
     }
 
 
@@ -141,17 +134,13 @@ public class AccountServiceImpl implements AccountService {
             log.info("Request password is {}", passwordEncoder.encode(withdrawalRequest.getAccountPin()));
             throw new AccountException("Incorrect Password",404);
         }
-
     }
-
 
     private void validateAccountBalanceBeforeWithdrawal(Account account, WithdrawalRequest withdrawalRequest) throws AccountException {
         if(account.getAccountBalance().compareTo(withdrawalRequest.getWithdrawalAmount()) < 0){
             throw new AccountException("Insufficient amount",404);
         }
     }
-
-
 
     public static String generateAccountNumber(){
        String id = String.valueOf( UUID.randomUUID().getLeastSignificantBits()).substring(1,9);
@@ -163,5 +152,4 @@ public class AccountServiceImpl implements AccountService {
             throw new AccountException("Account not found",404);
         }
     }
-
 }

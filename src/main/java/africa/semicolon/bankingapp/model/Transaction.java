@@ -15,6 +15,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -40,11 +42,11 @@ public class Transaction {
     private TransactionType transactionType;
 
     private String narration;
+    @Positive
     private BigDecimal amount;
     private BigDecimal accountBalance;
+    @NotNull
     private String accountNumber;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "account_id")
-//    private Account account;
+
 }

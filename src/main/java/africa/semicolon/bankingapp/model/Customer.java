@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
@@ -32,16 +33,16 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
+    @NotNull
     private String firstName;
 
-
+    @NotNull
     private String lastName;
 
     @Email
     private String email;
 
-
+    @NotNull
     private String phoneNumber;
 
 
@@ -59,6 +60,7 @@ public class Customer {
     @Enumerated(value = EnumType.STRING)
     private Set<RoleType> roles;
 
+    @NotNull
     private String password;
 
     private boolean isVerified;

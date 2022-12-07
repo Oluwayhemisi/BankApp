@@ -24,14 +24,9 @@ public class Account{
     private String accountName;
     private String accountPin;
 
-
     @Email
     private String email;
     private BigDecimal accountBalance;
-    private boolean isVerified;
-
-
-
 
 
     public Account( String accountName,String email, String accountPin, BigDecimal accountBalance) {

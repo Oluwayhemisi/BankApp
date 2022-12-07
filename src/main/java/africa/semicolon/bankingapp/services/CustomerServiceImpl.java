@@ -30,12 +30,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class CustomerServiceImpl implements CustomerService, UserDetailsService {
-   private CustomerRepository customerRepository;
-   private ModelMapper modelMapper;
+   private final CustomerRepository customerRepository;
+   private final ModelMapper modelMapper;
 
-   private PasswordEncoder passwordEncoder;
+   private final PasswordEncoder passwordEncoder;
 
-    private TokenProvider tokenProvider;
+    private final TokenProvider tokenProvider;
 
 
     public CustomerServiceImpl(CustomerRepository customerRepository, ModelMapper modelMapper,
@@ -74,9 +74,7 @@ public class CustomerServiceImpl implements CustomerService, UserDetailsService 
         roles.add(RoleType.ROLE_USER);
         customer.setRoles(roles);
 
-
         Customer savedCustomer = customerRepository.save(customer);
-
 
         CreateCustomerResponse createCustomerResponse = modelMapper.map(savedCustomer, CreateCustomerResponse.class);
         createCustomerResponse.setMessage("Customer's Account has successfully been created");
@@ -109,7 +107,6 @@ public class CustomerServiceImpl implements CustomerService, UserDetailsService 
     @Override
     public Customer findCustomerByEmail(String email) throws AccountException {
         return customerRepository.findByEmail(email).orElseThrow(()-> new AccountException("Customer email not found",404));
-
     }
 
     @Override

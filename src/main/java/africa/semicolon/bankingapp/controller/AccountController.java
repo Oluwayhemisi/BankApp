@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -30,7 +29,7 @@ public class AccountController {
 
 
     @PostMapping("deposit/")
-    public ResponseEntity<?> deposit(@RequestBody DepositRequest depositRequest) throws AccountException {
+    public ResponseEntity<?> deposit(@RequestBody @Valid DepositRequest depositRequest) throws AccountException {
 
             TransactionResponse transactionResponse = accountService.deposit(depositRequest);
             ApiResponse apiResponse = ApiResponse.builder()
@@ -42,7 +41,7 @@ public class AccountController {
 
     }
     @PostMapping("withdraw/")
-    public ResponseEntity<?> withdraw(@RequestBody WithdrawalRequest withdrawalRequest) throws AccountException {
+    public ResponseEntity<?> withdraw(@RequestBody @Valid WithdrawalRequest withdrawalRequest) throws AccountException {
             TransactionResponse transactionResponse = accountService.withdraw(withdrawalRequest);
             ApiResponse apiResponse = ApiResponse.builder()
                     .message("Transaction successful")
@@ -53,7 +52,7 @@ public class AccountController {
 
         }
         @PostMapping("/transfer")
-        public ResponseEntity<?> transfer(@RequestBody TransferRequest transferRequest) throws AccountException {
+        public ResponseEntity<?> transfer(@RequestBody @Valid TransferRequest transferRequest) throws AccountException {
             TransactionResponse transactionResponse = accountService.transfer(transferRequest);
             ApiResponse apiResponse = ApiResponse.builder()
                     .message("Transaction successful")
