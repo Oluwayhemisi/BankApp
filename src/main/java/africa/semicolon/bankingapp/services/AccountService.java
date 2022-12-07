@@ -19,7 +19,5 @@ public interface AccountService {
 
     TransactionResponse transfer(TransferRequest transferRequest) throws AccountException;
 
-    List<Account> getAllAccounts();
 
-    Account findAccountByEmail(String email) throws AccountException;
 }

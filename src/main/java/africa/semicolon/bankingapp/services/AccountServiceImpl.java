@@ -106,15 +106,6 @@ public class AccountServiceImpl implements AccountService {
         return transactionResponse;
     }
 
-    @Override
-    public List<Account> getAllAccounts() {
-        return accountRepository.findAll();
-    }
-
-    @Override
-    public Account findAccountByEmail(String email) throws AccountException {
-        return accountRepository.findAccountByEmail(email).orElseThrow(()-> new AccountException("Account with the email already exist",404));
-    }
 
 
     private void validateBalancePassword(AccountBalanceRequest accountbalanceRequest, Account account) throws AccountException {
